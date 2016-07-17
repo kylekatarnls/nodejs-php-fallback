@@ -1,0 +1,27 @@
+{
+    "name": "nodejs-php-fallback/nodejs-php-fallback",
+    "description": "Allow you to call node.js module or scripts throught PHP and call a fallback function if node.js is not available",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Kyle",
+            "email": "kylekatarnls@gmail.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^4.8"
+    },
+    "npm": {
+        "stylus": "^0.54",
+        "pug-cli": "^0.1"
+    },
+    "post-install-cmd": [
+        "NodejsPhpFallback\\NodejsPhpFallback::install"
+    ],
+    "autoload": {
+        "psr-0": {
+            "NodejsPhpFallback\\": "src/"
+        }
+    }
+}
