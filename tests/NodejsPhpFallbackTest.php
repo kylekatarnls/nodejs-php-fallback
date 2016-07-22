@@ -120,6 +120,7 @@ class NodejsPhpFallbackTest extends TestCase
     {
         $node = new NodejsPhpFallback();
         chdir(static::appDirectory() . '/tests/lib');
+        chmod('simple', 0777);
         $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
             return 'fail';
         });
