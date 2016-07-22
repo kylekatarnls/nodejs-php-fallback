@@ -64,11 +64,11 @@ class NodejsPhpFallback
         return $exec($script);
     }
 
-    public static function install(Event $e)
+    public static function install(Event $event)
     {
-        $config = $e->getComposer()->getConfig();
+        $config = $event->getComposer()->getConfig();
         if (!$config->has('npm')) {
-            $e->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+            $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
             return;
         }
         $packages = '';
