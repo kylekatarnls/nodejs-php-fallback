@@ -1,6 +1,5 @@
 # NodejsPhpFallback
 [![Latest Stable Version](https://poser.pugx.org/kylekatarnls/nodejs-php-fallback/v/stable.png)](https://packagist.org/packages/kylekatarnls/nodejs-php-fallback)
-[![Total Downloads](https://poser.pugx.org/kylekatarnls/jade-php/downloads.png)](https://packagist.org/packages/pug-php/pug)
 [![Build Status](https://travis-ci.org/kylekatarnls/nodejs-php-fallback.svg?branch=master)](https://travis-ci.org/pug-php/pug)
 [![StyleCI](https://styleci.io/repos/62958645/shield?style=flat)](https://styleci.io/repos/62958645)
 [![Test Coverage](https://codeclimate.com/github/kylekatarnls/nodejs-php-fallback/badges/coverage.svg)](https://codecov.io/github/kylekatarnls/nodejs-php-fallback?branch=master)
