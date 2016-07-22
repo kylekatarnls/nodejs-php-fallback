@@ -6,39 +6,69 @@ use Composer\Script\Event;
 
 class NodejsPhpFallback
 {
+    protected $nodePath;
+
+    public function __construct($nodePath = null)
+    {
+        $this->nodePath = isset($nodePath) ? $nodePath : 'node';
+    }
+
+    protected function checkFallback($fallback)
+    {
+        if ($this->isNodeInstalled()) {
+            return true;
+        }
+
+        if (is_null($fallback)) {
+            throw new \ErrorException('Please install node.js or provide a PHP fallback.', 2);
+        }
+
+        if (!is_callable($fallback)) {
+            throw new \InvalidArgumentException('The fallback provided is not callable.', 1);
+        }
+
+        return false;
+    }
+
+    protected function shellExec($withNode)
+    {
+        $preffix = $withNode ? $this->nodePath . ' ' : '';
+
+        return function ($script) use ($preffix) {
+            return shell_exec($preffix . $script);
+        };
+    }
+
     public function isNodeInstalled()
     {
-        return substr($this->nodeExec('--version'), 0, 1) === 'v';
+        $exec = $this->shellExec(true);
+
+        return substr($exec('--version'), 0, 1) === 'v';
     }
 
     public function exec($script, $fallback = null)
     {
-        if (!$this->isNodeInstalled()) {
-            if (is_null($fallback)) {
-                throw new \ErrorException('Please install node.js or provide a PHP fallback.', 2);
-            }
+        $exec = $this->checkFallback($fallback)
+            ? $this->shellExec(false)
+            : $fallback;
 
-            if (!is_callable($fallback)) {
-                throw new \InvalidArgumentException('The fallback provided is not callable.', 1);
-            }
-
-            return $fallback($package, $script);
-        }
-
-        return shell_exec($script);
+        return $exec($script);
     }
 
-    public function nodeExec($cmd)
+    public function nodeExec($script, $fallback = null)
     {
-        return shell_exec('node ' . $cmd);
+        $exec = $this->checkFallback($fallback)
+            ? $this->shellExec(true)
+            : $fallback;
+
+        return $exec($script);
     }
 
     public static function install(Event $e)
     {
-        exit('ici');
         $config = $e->getComposer()->getConfig();
         if (!$config->has('npm')) {
-            echo "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json";
+            $e->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
             return;
         }
         $packages = '';
@@ -46,6 +76,6 @@ class NodejsPhpFallback
             $packages .= ' ' . $package . '@"' . addslashes($version) . '"';
         }
 
-        return shell_exec('npm install --prefix ' . escapeshellarg(__DIR__ . '/../../nodes_modules') . $packages);
+        return shell_exec('npm install --prefix ' . escapeshellarg(__DIR__ . '/../..') . $packages);
     }
 }

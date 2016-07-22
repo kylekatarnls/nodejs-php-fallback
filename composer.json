@@ -10,13 +10,13 @@
     ],
     "require": {},
     "require-dev": {
+        "composer/composer": "^1.2",
         "phpunit/phpunit": "^4.8"
     },
-    "npm": {
-        "stylus": "^0.54",
-        "pug-cli": "^0.1"
-    },
     "post-install-cmd": [
+        "NodejsPhpFallback\\NodejsPhpFallback::install"
+    ],
+    "post-update-cmd": [
         "NodejsPhpFallback\\NodejsPhpFallback::install"
     ],
     "autoload": {
