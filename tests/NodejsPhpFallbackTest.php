@@ -62,6 +62,7 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testIsNodeInstalled()
     {
+        chmod(__DIR__ . '/lib/fake-node/node', 0777);
         $node = new NodejsPhpFallback(__DIR__ . '/lib/fake-node/node');
         $this->assertTrue($node->isNodeInstalled());
 
