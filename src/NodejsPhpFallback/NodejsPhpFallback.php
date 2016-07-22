@@ -77,6 +77,6 @@ class NodejsPhpFallback
             $packages .= ' ' . $package . '@"' . addslashes($version) . '"';
         }
 
-        return shell_exec('npm install --prefix ' . escapeshellarg(__DIR__ . '/../..') . $packages);
+        shell_exec('npm install --prefix ' . escapeshellarg(__DIR__ . '/../..') . $packages);
     }
 }
