@@ -26,7 +26,6 @@ With this configuration, both node **stylus** and php **kylekatarnls/stylus** pa
 So you can easily create a function that will try first to call the node package, then else the php one:
 
 ```php
-
 use NodejsPhpFallback\NodejsPhpFallback;
 use Stylus\Stylus;
 
