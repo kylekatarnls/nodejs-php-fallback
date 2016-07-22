@@ -11,7 +11,8 @@
     "require": {},
     "require-dev": {
         "composer/composer": "^1.2",
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^4.8",
+        "codeclimate/php-test-reporter": "dev-master"
     },
     "post-install-cmd": [
         "NodejsPhpFallback\\NodejsPhpFallback::install"
