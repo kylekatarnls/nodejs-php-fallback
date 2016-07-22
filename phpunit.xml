@@ -1,5 +1,5 @@
 <phpunit
-    bootstrap="vendor/autoload.php"
+    bootstrap="tests/lib/bootstrap.php"
     backupGlobals="false"
     colors="true"
     convertErrorsToExceptions="true"
