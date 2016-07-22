@@ -19,7 +19,8 @@ class TestCase extends PHPUnit_Framework_TestCase
         return $directory;
     }
 
-    protected static function removeDirectory($dir) {
+    protected static function removeDirectory($dir)
+    {
         if (is_dir($dir)) {
             $objects = scandir($dir);
             foreach ($objects as $object) {

@@ -69,6 +69,7 @@ class NodejsPhpFallback
         $config = $event->getComposer()->getConfig();
         if (!$config->has('npm')) {
             $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+
             return;
         }
         $packages = '';
