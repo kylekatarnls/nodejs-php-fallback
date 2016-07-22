@@ -14,12 +14,14 @@
         "phpunit/phpunit": "^4.8",
         "codeclimate/php-test-reporter": "dev-master"
     },
-    "post-install-cmd": [
-        "NodejsPhpFallback\\NodejsPhpFallback::install"
-    ],
-    "post-update-cmd": [
-        "NodejsPhpFallback\\NodejsPhpFallback::install"
-    ],
+    "scripts": {
+        "post-install-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-update-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ]
+    },
     "autoload": {
         "psr-0": {
             "NodejsPhpFallback\\": "src/"
