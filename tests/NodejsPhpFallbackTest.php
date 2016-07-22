@@ -116,6 +116,46 @@ class NodejsPhpFallbackTest extends TestCase
     /**
      * @depends testInstall
      */
+    public function testExec()
+    {
+        $node = new NodejsPhpFallback();
+        chdir(static::appDirectory() . '/tests/lib');
+        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
+            return 'fail';
+        });
+
+        $this->assertSame('foo-bar', trim($simple), 'A cli program should be available if node is installed.');
+    }
+
+    /**
+     * @depends testInstall
+     */
+    public function testExecWithoutNode()
+    {
+        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        chdir(static::appDirectory() . '/tests/lib');
+        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
+            return 'fail';
+        });
+
+        $this->assertSame('fail', trim($simple), 'A cli program should not be available if node is not installed.');
+    }
+
+    /**
+     * @depends testInstall
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 1
+     */
+    public function testExecWithoutNodeNorGoodFallback()
+    {
+        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        chdir(static::appDirectory() . '/tests/lib');
+        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), 42);
+    }
+
+    /**
+     * @depends testInstall
+     */
     public function testBadConfig()
     {
         $config = new Config(false, static::appDirectory());
