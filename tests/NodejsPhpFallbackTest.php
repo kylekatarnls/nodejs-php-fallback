@@ -1,7 +1,7 @@
 <?php
 
-use Composer\Config;
 use Composer\Composer;
+use Composer\Config;
 use Composer\IO\NullIO;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
@@ -42,7 +42,7 @@ class NodejsPhpFallbackTest extends TestCase
         $config->merge(array(
             'config' => array(
                 'npm' => array(
-                    'stylus' => '^0.54',
+                    'stylus'  => '^0.54',
                     'pug-cli' => '*',
                 ),
             ),
@@ -122,8 +122,7 @@ class NodejsPhpFallbackTest extends TestCase
         $config->merge(array(
             'config' => array(
                 'no-npm' => array(
-                    'stylus' => '^0.54',
-                    'pug-cli' => '*',
+                    'foo' => '^1.0',
                 ),
             ),
         ));
