@@ -64,19 +64,47 @@ class NodejsPhpFallback
         return $exec($script);
     }
 
+    public function execModuleScript($module, $script, $arguments, $fallback = null)
+    {
+        return $this->node->nodeExec(
+            static::getModuleScript($module, $script) . (empty($arguments) ? '' : ' ' . $arguments),
+            $fallback
+        );
+    }
+
+    public static function getNodeModules()
+    {
+        return dirname(dirname(__DIR__));
+    }
+
+    public static function getNodeModule($module)
+    {
+        return static::getNodeModules() . DIRECTORY_SEPARATOR . $module;
+    }
+
+    public static function getModuleScript($module, $script)
+    {
+        return escapeshellarg(static::getNodeModule($module) . DIRECTORY_SEPARATOR . $script);
+    }
+
     public static function install(Event $event)
     {
-        $config = $event->getComposer()->getConfig();
-        if (!$config->has('npm')) {
+        $config = $event->getComposer()->getPackage()->getExtra();
+        if (!isset($config['npm'])) {
             $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
 
             return;
         }
+        $npm = (array) $config['npm'];
         $packages = '';
-        foreach ($config->get('npm') as $package => $version) {
+        foreach ($npm as $package => $version) {
+            if (is_int($package)) {
+                $package = $version;
+                $version = '*';
+            }
             $packages .= ' ' . $package . '@"' . addslashes($version) . '"';
         }
 
-        shell_exec('npm install --prefix ' . escapeshellarg(__DIR__ . '/../..') . $packages);
+        shell_exec('npm install --prefix ' . escapeshellarg(static::getNodeModules()) . $packages);
     }
 }

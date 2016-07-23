@@ -16,8 +16,10 @@ Edit **composer.json** to add **nodejs-php-fallback** and
     "nodejs-php-fallback/nodejs-php-fallback": "*",
     "kylekatarnls/stylus": "*"
 },
-"npm": {
-    "stylus": "*"
+"extra": {
+    "npm": {
+        "stylus": "^0.54"
+    }
 },
 ...
 ```
@@ -32,14 +34,13 @@ use Stylus\Stylus;
 function getCssFromStylusFile($stylusFile)
 {
     $node = new NodejsPhpFallback();
-    $command = escapeshellarg(static::appDirectory() . '/node_modules/stylus/bin/stylus') . ' --print ' . escapeshellarg($stylusFile);
     $fallback = function () use ($stylusFile) {
         $stylus = new Stylus();
 
         return $stylus->fromFile($stylusFile)->toString();
     }
 
-    return $node->nodeExec($command, $fallback);
+    return $node->execModuleScript('stylus', 'bin/stylus', '--print ' . escapeshellarg($stylusFile), $fallback);
 }
 
 $css = getCssFromStylusFile('path/to/my-stylus-file.styl');
@@ -47,3 +48,24 @@ $css = getCssFromStylusFile('path/to/my-stylus-file.styl');
 Here ```$css``` will contain CSS code rendered from your stylus file, no matter node is installed or not. So you can install node on your production environment to benefit of the last official version of a npm package but any one can test or develop your project with no need to install node.
 
 Note: the PHP fallback can be a simple php function, not necessarily a call to a class or a composer package.
+
+### Settings
+
+The *extra.npm* can be an object with npm required packages as key and versions for each of them as value (see https://docs.npmjs.com/misc/semver for version definition). You can also set it as an array of package names, it's the same as specify all packages dependancies with ```"*"``` version. Else if you need only one package and don't care about the version, just pass it as a string:
+
+Array configuration:
+```json
+"extra": {
+    "npm": [
+        "hamljs",
+        "kraken-js"
+    ]
+},
+```
+
+String configuration:
+```json
+"extra": {
+    "npm": "express"
+},
+```
