@@ -1,8 +1,8 @@
 <?php
 
 use Composer\Composer;
-use Composer\Package\RootPackage;
 use Composer\IO\NullIO;
+use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
 use NodejsPhpFallbackTest\TestCase;
