@@ -10,7 +10,7 @@ class NodejsPhpFallback
 
     public function __construct($nodePath = null)
     {
-        $this->nodePath = isset($nodePath) ? $nodePath : 'node';
+        $this->nodePath = $nodePath ?: 'node';
     }
 
     protected function checkFallback($fallback)
@@ -66,15 +66,20 @@ class NodejsPhpFallback
 
     public function execModuleScript($module, $script, $arguments, $fallback = null)
     {
-        return $this->node->nodeExec(
+        return $this->nodeExec(
             static::getModuleScript($module, $script) . (empty($arguments) ? '' : ' ' . $arguments),
             $fallback
         );
     }
 
-    public static function getNodeModules()
+    public static function getPrefixPath()
     {
         return dirname(dirname(__DIR__));
+    }
+
+    public static function getNodeModules()
+    {
+        return static::getPrefixPath() . DIRECTORY_SEPARATOR . 'node_modules';
     }
 
     public static function getNodeModule($module)
@@ -84,7 +89,13 @@ class NodejsPhpFallback
 
     public static function getModuleScript($module, $script)
     {
-        return escapeshellarg(static::getNodeModule($module) . DIRECTORY_SEPARATOR . $script);
+        $module = static::getNodeModule($module);
+        $path = $module . DIRECTORY_SEPARATOR . $script;
+        if (!file_exists($path)) {
+            throw new \InvalidArgumentException("The $script was not found in the module path $module.", 3);
+        }
+
+        return escapeshellarg(realpath($path));
     }
 
     public static function install(Event $event)
@@ -105,6 +116,6 @@ class NodejsPhpFallback
             $packages .= ' ' . $package . '@"' . addslashes($version) . '"';
         }
 
-        shell_exec('npm install --prefix ' . escapeshellarg(static::getNodeModules()) . $packages);
+        shell_exec('npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages);
     }
 }

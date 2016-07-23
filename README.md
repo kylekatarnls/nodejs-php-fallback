@@ -9,7 +9,9 @@ Allow you to call node.js module or scripts throught PHP and call a fallback fun
 
 ## Usage
 
-Edit **composer.json** to add **nodejs-php-fallback** and
+Edit **composer.json** to add **nodejs-php-fallback** to *"require"*, your *"npm"* dependancies to *"extra"* and ```"NodejsPhpFallback\\NodejsPhpFallback::install"```to both *"post-install-cmd"* and *"post-update-cmd"* in *"scripts"*
+
+For example, to use node.js **stylus** and fallback to the php **kylekatarnls/stylus** port, use:
 ```json
 ...
 "require": {
@@ -21,8 +23,17 @@ Edit **composer.json** to add **nodejs-php-fallback** and
         "stylus": "^0.54"
     }
 },
+"scripts": {
+    "post-install-cmd": [
+        "NodejsPhpFallback\\NodejsPhpFallback::install"
+    ],
+    "post-update-cmd": [
+        "NodejsPhpFallback\\NodejsPhpFallback::install"
+    ]
+},
 ...
 ```
+
 With this configuration, both node **stylus** and php **kylekatarnls/stylus** packages will be installed and updated when you update or install with composer if node is installed, else, only the php package will be.
 
 So you can easily create a function that will try first to call the node package, then else the php one:

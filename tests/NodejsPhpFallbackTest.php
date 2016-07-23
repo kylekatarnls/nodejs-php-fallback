@@ -1,7 +1,7 @@
 <?php
 
 use Composer\Composer;
-use Composer\Config;
+use Composer\Package\RootPackage;
 use Composer\IO\NullIO;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
@@ -36,19 +36,57 @@ class NodejsPhpFallbackTest extends TestCase
         static::removeTestDirectories();
     }
 
-    public function testInstall()
+    public function testStringInstall()
     {
-        $config = new Config(false, static::appDirectory());
-        $config->merge(array(
-            'config' => array(
-                'npm' => array(
-                    'stylus'  => '^0.54',
-                    'pug-cli' => '*',
-                ),
+        $package = new RootPackage('foo', '1.0.0', '1.0.0');
+        $package->setExtra(array(
+            'npm' => 'stylus',
+        ));
+        $composer = new Composer();
+        $composer->setPackage($package);
+        $io = new NullIO();
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertSame(realpath(static::appDirectory()), NodejsPhpFallback::getPrefixPath());
+        $this->assertSame(realpath(static::appDirectory() . '/node_modules'), NodejsPhpFallback::getNodeModules());
+        $this->assertSame(realpath(static::appDirectory() . '/node_modules/stylus'), NodejsPhpFallback::getNodeModule('stylus'));
+        $this->assertSame(escapeshellarg(realpath(static::appDirectory() . '/node_modules/stylus/bin/stylus')), NodejsPhpFallback::getModuleScript('stylus', 'bin/stylus'));
+        static::removeTestDirectories();
+    }
+
+    public function testArrayInstall()
+    {
+        $package = new RootPackage('foo', '1.0.0', '1.0.0');
+        $package->setExtra(array(
+            'npm' => array(
+                'stylus',
+                'pug-cli',
             ),
         ));
         $composer = new Composer();
-        $composer->setConfig($config);
+        $composer->setPackage($package);
+        $io = new NullIO();
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInstall()
+    {
+        $package = new RootPackage('foo', '1.0.0', '1.0.0');
+        $package->setExtra(array(
+            'npm' => array(
+                'stylus'  => '^0.54',
+                'pug-cli' => '*',
+            ),
+        ));
+        $composer = new Composer();
+        $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -93,6 +131,38 @@ class NodejsPhpFallbackTest extends TestCase
     /**
      * @depends testInstall
      */
+    public function testModuleExecStylus()
+    {
+        // prepare
+        $stylusFile = sys_get_temp_dir() . '/test.styl';
+
+        // test
+        $node = new NodejsPhpFallback();
+        file_put_contents($stylusFile, "a\n  color red");
+        $css = $node->execModuleScript('stylus', 'bin/stylus', '--print ' . escapeshellarg($stylusFile));
+
+        // cleanup
+        unlink($stylusFile);
+
+        // compare result
+        $this->assertSame('a{color:#f00;}', preg_replace('/\s/', '', $css), 'A program such as stylus should return the cli call result.');
+    }
+
+    /**
+     * @depends testInstall
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 3
+     */
+    public function testModuleExecStylusWithMissingScript()
+    {
+        // test
+        $node = new NodejsPhpFallback();
+        $node->execModuleScript('stylus', 'bin/i-do-not-exists', '--print foo/bar');
+    }
+
+    /**
+     * @depends testInstall
+     */
     public function testNodeExecPug()
     {
         // prepare
@@ -131,11 +201,25 @@ class NodejsPhpFallbackTest extends TestCase
     /**
      * @depends testInstall
      */
-    public function testExecWithoutNode()
+    public function testNodeExecWithoutNode()
     {
         $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
         chdir(static::appDirectory() . '/tests/lib');
         $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
+            return 'fail';
+        });
+
+        $this->assertSame('fail', trim($simple), 'A cli program should not be available if node is not installed.');
+    }
+
+    /**
+     * @depends testInstall
+     */
+    public function testModuleExecWithoutNode()
+    {
+        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        chdir(static::appDirectory() . '/tests/lib');
+        $simple = $node->execModuleScript('stylus', 'bin/stylus', '--print foo/bar.styl', function () {
             return 'fail';
         });
 
@@ -159,16 +243,14 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testBadConfig()
     {
-        $config = new Config(false, static::appDirectory());
-        $config->merge(array(
-            'config' => array(
-                'no-npm' => array(
-                    'foo' => '^1.0',
-                ),
+        $package = new RootPackage('foo', '1.0.0', '1.0.0');
+        $package->setExtra(array(
+            'no-npm' => array(
+                'foo' => '^1.0',
             ),
         ));
         $composer = new Composer();
-        $composer->setConfig($config);
+        $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
