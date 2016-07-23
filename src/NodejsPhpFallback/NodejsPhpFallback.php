@@ -39,6 +39,15 @@ class NodejsPhpFallback
         };
     }
 
+    protected function execOrFallback($script, $fallback, $withNode)
+    {
+        $exec = $this->checkFallback($fallback)
+            ? $this->shellExec($withNode)
+            : $fallback;
+
+        return call_user_func($exec, $script);
+    }
+
     public function isNodeInstalled()
     {
         $exec = $this->shellExec(true);
@@ -48,20 +57,12 @@ class NodejsPhpFallback
 
     public function exec($script, $fallback = null)
     {
-        $exec = $this->checkFallback($fallback)
-            ? $this->shellExec(false)
-            : $fallback;
-
-        return $exec($script);
+        return $this->execOrFallback($script, $fallback, false);
     }
 
     public function nodeExec($script, $fallback = null)
     {
-        $exec = $this->checkFallback($fallback)
-            ? $this->shellExec(true)
-            : $fallback;
-
-        return $exec($script);
+        return $this->execOrFallback($script, $fallback, true);
     }
 
     public function execModuleScript($module, $script, $arguments, $fallback = null)
