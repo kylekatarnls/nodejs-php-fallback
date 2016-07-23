@@ -16,14 +16,6 @@
         "phpunit/phpunit": ">=4.0",
         "codeclimate/php-test-reporter": "dev-master"
     },
-    "scripts": {
-        "post-install-cmd": [
-            "NodejsPhpFallback\\NodejsPhpFallback::install"
-        ],
-        "post-update-cmd": [
-            "NodejsPhpFallback\\NodejsPhpFallback::install"
-        ]
-    },
     "autoload": {
         "psr-0": {
             "NodejsPhpFallback\\": "src/"
