@@ -31,6 +31,5 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function onAutoloadDump(Event $event)
     {
         NodejsPhpFallback::install($event);
-        $this->io->write(print_r($event->getComposer()->getPackage()->getExtra(), true));
     }
 }
