@@ -1,7 +1,7 @@
 <?php
 
-use Composer\Config;
 use Composer\Composer;
+use Composer\Config;
 use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\ComposerPlugin;
