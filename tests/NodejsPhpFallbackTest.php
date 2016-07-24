@@ -1,5 +1,6 @@
 <?php
 
+use Composer\Config;
 use Composer\Composer;
 use Composer\IO\NullIO;
 use Composer\Package\RootPackage;
@@ -28,6 +29,7 @@ class NodejsPhpFallbackTest extends TestCase
             'npm' => 'stylus',
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
@@ -51,6 +53,7 @@ class NodejsPhpFallbackTest extends TestCase
             ),
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
@@ -71,6 +74,7 @@ class NodejsPhpFallbackTest extends TestCase
             ),
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
@@ -235,6 +239,7 @@ class NodejsPhpFallbackTest extends TestCase
             ),
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
@@ -254,6 +259,7 @@ class NodejsPhpFallbackTest extends TestCase
             'npm' => array(),
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);

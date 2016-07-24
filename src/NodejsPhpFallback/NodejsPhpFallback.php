@@ -101,16 +101,39 @@ class NodejsPhpFallback
 
     public static function install(Event $event)
     {
-        $config = $event->getComposer()->getPackage()->getExtra();
-        if (!isset($config['npm'])) {
-            $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+        $composer = $event->getComposer();
+        $package = $composer->getPackage();
+        $dependancies = array_merge(
+            array_keys($package->getDevRequires()),
+            array_keys($package->getRequires())
+        );
+        $vendorDir = $composer->getConfig()->get('vendor-dir');
+        $config = $package->getExtra();
+        $npm = isset($config['npm'])
+            ? (array) $config['npm']
+            : array();
 
-            return;
+        foreach ($dependancies as $dependancy) {
+            $json = new JsonFile($vendorDir . DIRECTORY_SEPARATOR . $dependancy . DIRECTORY_SEPARATOR . 'composer.json');
+            try {
+                $dependancyConfig = $json->read();
+            } catch (\RuntimeException $e) {
+                $dependancyConfig = null;
+            }
+            if (is_array($dependancyConfig) && isset($dependancyConfig['extra'], $dependancyConfig['extra']['npm'])) {
+                $npm = array_merge((array) $dependancyConfig['extra']['npm'], $npm);
+            }
         }
-        $npm = (array) $config['npm'];
+
         if (!count($npm)) {
+            if (!isset($config['npm'])) {
+                $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+
+                return;
+            }
             $event->getIO()->write('No packages found.');
         }
+
         $packages = '';
         foreach ($npm as $package => $version) {
             if (is_int($package)) {
