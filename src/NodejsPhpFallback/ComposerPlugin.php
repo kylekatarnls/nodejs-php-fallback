@@ -17,7 +17,7 @@ class ComposerPlugin implements PluginInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'post-autoload-dump' => "NodejsPhpFallback\\NodejsPhpFallback::install",
+            'post-autoload-dump' => 'NodejsPhpFallback\\NodejsPhpFallback::install',
         );
     }
 }
