@@ -21,7 +21,8 @@ class ComposerPluginTest extends TestCase
         $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
-        $plugin = new ComposerPlugin($composer, $io);
+        $plugin = new ComposerPlugin();
+        $plugin->activate($composer, $io);
         $events = ComposerPlugin::getSubscribedEvents();
         $this->assertTrue(is_array($events));
         $this->assertTrue(is_array($events['post-autoload-dump']));
