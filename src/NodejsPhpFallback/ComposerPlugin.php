@@ -8,11 +8,11 @@ use Composer\Plugin\PluginInterface;
 
 class ComposerPlugin implements PluginInterface
 {
-    // public function activate(Composer $composer, IOInterface $io)
-    // {
-    //     $installer = new TemplateInstaller($io, $composer);
-    //     $composer->getInstallationManager()->addInstaller($installer);
-    // }
+    public function activate(Composer $composer, IOInterface $io)
+    {
+        // $installer = new TemplateInstaller($io, $composer);
+        // $composer->getInstallationManager()->addInstaller($installer);
+    }
 
     public static function getSubscribedEvents()
     {
