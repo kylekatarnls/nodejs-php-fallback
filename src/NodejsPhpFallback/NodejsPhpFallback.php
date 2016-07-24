@@ -108,13 +108,18 @@ class NodejsPhpFallback
             return;
         }
         $npm = (array) $config['npm'];
+        if (!count($npm)) {
+            $event->getIO()->write('No packages found.');
+        }
         $packages = '';
         foreach ($npm as $package => $version) {
             if (is_int($package)) {
                 $package = $version;
                 $version = '*';
             }
-            $packages .= ' ' . $package . '@"' . addslashes($version) . '"';
+            $install = $package . '@"' . addslashes($version) . '"';
+            $event->getIO()->write('Package founded added to be installed with npm: ' . $install);
+            $packages .= ' ' . $install;
         }
 
         shell_exec('npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages);

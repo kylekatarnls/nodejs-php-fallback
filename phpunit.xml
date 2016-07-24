@@ -7,7 +7,10 @@
     convertWarningsToExceptions="true"
     >
     <testsuites>
-        <testsuite name="Features">
+        <testsuite name="ComposerPlugin">
+            <file>tests/ComposerPluginTest.php</file>
+        </testsuite>
+        <testsuite name="NodejsPhpFallback">
             <file>tests/NodejsPhpFallbackTest.php</file>
         </testsuite>
     </testsuites>

@@ -1,7 +1,7 @@
 {
     "name": "nodejs-php-fallback/nodejs-php-fallback",
     "description": "Allow you to call node.js module or scripts throught PHP and call a fallback function if node.js is not available",
-    "type": "library",
+    "type": "composer-plugin",
     "authors": [
         {
             "name": "Kyle",
@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.3.0",
+        "composer-plugin-api": "^1.0"
     },
     "require-dev": {
         "composer/composer": "^1.2",
@@ -20,5 +21,22 @@
         "psr-0": {
             "NodejsPhpFallback\\": "src/"
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-update-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-package-install": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-package-update": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ]
+    },
+    "extra": {
+        "class": "NodejsPhpFallback\\ComposerPlugin"
     }
 }

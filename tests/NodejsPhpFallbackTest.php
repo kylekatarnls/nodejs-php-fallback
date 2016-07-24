@@ -7,24 +7,9 @@ use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
 use NodejsPhpFallbackTest\TestCase;
 
-class CaptureIO extends NullIO
-{
-    protected $lastMsg;
-
-    public function write($msg, $newline = true, $verbosity = self::NORMAL)
-    {
-        $this->lastMsg = $msg;
-    }
-
-    public function getLastOutput()
-    {
-        return $this->lastMsg;
-    }
-}
-
 class NodejsPhpFallbackTest extends TestCase
 {
-    protected static $deleteAfterTest = array('node_modules', 'etc');
+    protected static $deleteAfterTest = array('node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd');
 
     public static function setUpBeforeClass()
     {
@@ -257,6 +242,25 @@ class NodejsPhpFallbackTest extends TestCase
 
         // compare result
         $this->assertSame(0, strpos($io->getLastOutput(), 'Warning:'), 'If the npm config is missing a warning should be raised.');
+    }
+
+    /**
+     * @depends testInstall
+     */
+    public function testEmptyConfig()
+    {
+        $package = new RootPackage('foo', '1.0.0', '1.0.0');
+        $package->setExtra(array(
+            'npm' => array(),
+        ));
+        $composer = new Composer();
+        $composer->setPackage($package);
+        $io = new CaptureIO();
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        // compare result
+        $this->assertSame('No packages found.', $io->getLastOutput(), 'If the npm config is empty a message should be displayed.');
     }
 
     /**
