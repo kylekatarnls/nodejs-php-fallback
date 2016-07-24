@@ -12,10 +12,11 @@ use Composer\Script\Event;
 
 class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 {
+    protected $io;
+
     public function activate(Composer $composer, IOInterface $io)
     {
-        // $installer = new TemplateInstaller($io, $composer);
-        // $composer->getInstallationManager()->addInstaller($installer);
+        $this->io = $io;
     }
 
     public static function getSubscribedEvents()
@@ -30,5 +31,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function onAutoloadDump(Event $event)
     {
         NodejsPhpFallback::install($event);
+        $this->io->write(print_r($event->getComposer()->getPackage()->getExtra(), true));
     }
 }
