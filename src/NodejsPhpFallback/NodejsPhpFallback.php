@@ -2,6 +2,7 @@
 
 namespace NodejsPhpFallback;
 
+use Composer\Json\JsonFile;
 use Composer\Script\Event;
 
 class NodejsPhpFallback
