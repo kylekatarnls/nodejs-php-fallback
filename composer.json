@@ -22,6 +22,20 @@
             "NodejsPhpFallback\\": "src/"
         }
     },
+    "scripts": {
+        "post-install-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-update-cmd": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-package-install": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ],
+        "post-package-update": [
+            "NodejsPhpFallback\\NodejsPhpFallback::install"
+        ]
+    },
     "extra": {
         "class": "NodejsPhpFallback\\ComposerPlugin"
     }
