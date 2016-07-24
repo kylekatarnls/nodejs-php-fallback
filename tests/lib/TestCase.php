@@ -36,6 +36,9 @@ class TestCase extends PHPUnit_Framework_TestCase
             }
             rmdir($dir);
         }
+        if (is_file($dir)) {
+            unlink($dir);
+        }
     }
 
     public static function removeTestDirectories()
