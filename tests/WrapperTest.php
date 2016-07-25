@@ -59,7 +59,6 @@ class NodejsPhpFallbackTest extends TestCase
         $wrapper = new UpperCaseWrapperWithNode('does/not/exists');
         $this->assertSame(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'source.tmp', $wrapper->getPath());
         $this->assertSame(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'bar', $wrapper->getPath('bar'));
-
     }
 
     public function testGetSource()

@@ -18,7 +18,8 @@ abstract class Wrapper implements WrapperInterface
     public function execModuleScript($module, $script, $arguments, $fallback = null)
     {
         if (is_null($fallback)) {
-            $fallback = function (){};
+            $fallback = function () {
+            };
         }
 
         return $this->node->execModuleScript($module, $script, $arguments, $fallback);
