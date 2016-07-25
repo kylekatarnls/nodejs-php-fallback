@@ -2,6 +2,8 @@
 
 namespace NodejsPhpFallback;
 
+use Composer\Composer;
+use Composer\Json\JsonFile;
 use Composer\Script\Event;
 
 class NodejsPhpFallback
@@ -99,18 +101,50 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
+    protected static function getNpmConfig(Composer $composer, array $dependancies)
+    {
+        $vendorDir = $composer->getConfig()->get('vendor-dir');
+        $config = $composer->getPackage()->getExtra();
+
+        $npm = isset($config['npm'])
+            ? (array) $config['npm']
+            : array();
+
+        foreach ($dependancies as $dependancy) {
+            $json = new JsonFile($vendorDir . DIRECTORY_SEPARATOR . $dependancy . DIRECTORY_SEPARATOR . 'composer.json');
+            try {
+                $dependancyConfig = $json->read();
+            } catch (\RuntimeException $e) {
+                $dependancyConfig = null;
+            }
+            if (is_array($dependancyConfig) && isset($dependancyConfig['extra'], $dependancyConfig['extra']['npm'])) {
+                $npm = array_merge((array) $dependancyConfig['extra']['npm'], $npm);
+            }
+        }
+
+        return $npm;
+    }
+
     public static function install(Event $event)
     {
-        $config = $event->getComposer()->getPackage()->getExtra();
-        if (!isset($config['npm'])) {
-            $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+        $composer = $event->getComposer();
+        $package = $composer->getPackage();
+        $dependancies = array_merge(
+            array_keys($package->getDevRequires()),
+            array_keys($package->getRequires())
+        );
+        $config = $package->getExtra();
+        $npm = static::getNpmConfig($composer, $dependancies);
+
+        if (!count($npm)) {
+            $event->getIO()->write(isset($config['npm'])
+                ? 'No packages found.'
+                : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
+            );
 
             return;
         }
-        $npm = (array) $config['npm'];
-        if (!count($npm)) {
-            $event->getIO()->write('No packages found.');
-        }
+
         $packages = '';
         foreach ($npm as $package => $version) {
             if (is_int($package)) {
@@ -122,6 +156,9 @@ class NodejsPhpFallback
             $packages .= ' ' . $install;
         }
 
-        shell_exec('npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages);
+        shell_exec(
+            'npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages .
+            ' > ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'NUL' : '/dev/null')
+        );
     }
 }
