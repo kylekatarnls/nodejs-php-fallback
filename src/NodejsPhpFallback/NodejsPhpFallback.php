@@ -137,12 +137,12 @@ class NodejsPhpFallback
         $npm = static::getNpmConfig($composer, $dependancies);
 
         if (!count($npm)) {
-            if (!isset($config['npm'])) {
-                $event->getIO()->write("Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json");
+            $event->getIO()->write(isset($config['npm'])
+                ? 'No packages found.'
+                : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
+            );
 
-                return;
-            }
-            $event->getIO()->write('No packages found.');
+            return;
         }
 
         $packages = '';
@@ -156,6 +156,9 @@ class NodejsPhpFallback
             $packages .= ' ' . $install;
         }
 
-        shell_exec('npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages);
+        shell_exec(
+            'npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages .
+            ' > ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'NUL' : '/dev/null')
+        );
     }
 }
