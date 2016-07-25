@@ -1,6 +1,7 @@
 <?php
 
 use Composer\Composer;
+use Composer\Config;
 use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\ComposerPlugin;
@@ -18,6 +19,7 @@ class ComposerPluginTest extends TestCase
             'npm' => 'stylus',
         ));
         $composer = new Composer();
+        $composer->setConfig(new Config());
         $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
