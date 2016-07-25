@@ -64,6 +64,38 @@ class NodejsPhpFallbackTest extends TestCase
         static::removeTestDirectories();
     }
 
+    public function testInstallDependancies()
+    {
+        $vendorDir = sys_get_temp_dir() . '/NodejsPhpFallbackVendor';
+        static::removeDirectory($vendorDir);
+        mkdir($vendorDir . '/foo/bar', 0777, true);
+        file_put_contents($vendorDir . '/foo/bar/composer.json', '{"extra":{"npm":"stylus"}}');
+        mkdir($vendorDir . '/baz/boo', 0777, true);
+        file_put_contents($vendorDir . '/baz/boo/composer.json', '{"extra":{"npm":["pug-cli"]}}');
+        $package = new RootPackage('bin', '1.0.0', '1.0.0');
+        $package->setRequires(array(
+            'foo/bar' => array(),
+            'baz/boo' => array(),
+        ));
+        $composer = new Composer();
+        $config = new Config();
+        $config->merge(array(
+            'config' => array(
+                'vendor-dir' => $vendorDir,
+            ),
+        ));
+        $composer->setConfig($config);
+        $composer->setPackage($package);
+        $io = new NullIO();
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+        static::removeDirectory($vendorDir);
+    }
+
     public function testInstall()
     {
         $package = new RootPackage('foo', '1.0.0', '1.0.0');
