@@ -74,8 +74,8 @@ class NodejsPhpFallbackTest extends TestCase
         file_put_contents($vendorDir . '/baz/boo/composer.json', '{"extra":{"npm":["pug-cli"]}}');
         $package = new RootPackage('bin', '1.0.0', '1.0.0');
         $package->setRequires(array(
-            'foo/bar' => array(),
-            'baz/boo' => array(),
+            'foo/bar'   => array(),
+            'baz/boo'   => array(),
             'not/found' => array(),
         ));
         $composer = new Composer();
