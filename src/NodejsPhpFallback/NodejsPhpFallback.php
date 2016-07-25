@@ -4,6 +4,7 @@ namespace NodejsPhpFallback;
 
 use Composer\Json\JsonFile;
 use Composer\Script\Event;
+use Composer\Composer;
 
 class NodejsPhpFallback
 {
@@ -100,16 +101,11 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
-    public static function install(Event $event)
+    protected static function getNpmConfig(Composer $composer, array $dependancies)
     {
-        $composer = $event->getComposer();
-        $package = $composer->getPackage();
-        $dependancies = array_merge(
-            array_keys($package->getDevRequires()),
-            array_keys($package->getRequires())
-        );
         $vendorDir = $composer->getConfig()->get('vendor-dir');
-        $config = $package->getExtra();
+        $config = $composer->getPackage()->getExtra();
+
         $npm = isset($config['npm'])
             ? (array) $config['npm']
             : array();
@@ -125,6 +121,20 @@ class NodejsPhpFallback
                 $npm = array_merge((array) $dependancyConfig['extra']['npm'], $npm);
             }
         }
+
+        return $npm;
+    }
+
+    public static function install(Event $event)
+    {
+        $composer = $event->getComposer();
+        $package = $composer->getPackage();
+        $dependancies = array_merge(
+            array_keys($package->getDevRequires()),
+            array_keys($package->getRequires())
+        );
+        $config = $package->getExtra();
+        $npm = static::getNpmConfig($composer, $dependancies);
 
         if (!count($npm)) {
             if (!isset($config['npm'])) {

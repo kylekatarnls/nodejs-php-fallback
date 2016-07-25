@@ -76,6 +76,7 @@ class NodejsPhpFallbackTest extends TestCase
         $package->setRequires(array(
             'foo/bar' => array(),
             'baz/boo' => array(),
+            'not/found' => array(),
         ));
         $composer = new Composer();
         $config = new Config();
