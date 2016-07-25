@@ -13,6 +13,9 @@
         <testsuite name="NodejsPhpFallback">
             <file>tests/NodejsPhpFallbackTest.php</file>
         </testsuite>
+        <testsuite name="Wrapper">
+            <file>tests/WrapperTest.php</file>
+        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
