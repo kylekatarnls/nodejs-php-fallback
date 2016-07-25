@@ -152,7 +152,7 @@ class NodejsPhpFallback
                 $version = '*';
             }
             $install = $package . '@"' . addslashes($version) . '"';
-            $event->getIO()->write('Package founded added to be installed with npm: ' . $install);
+            $event->getIO()->write('Package found added to be installed with npm: ' . $install);
             $packages .= ' ' . $install;
         }
 
