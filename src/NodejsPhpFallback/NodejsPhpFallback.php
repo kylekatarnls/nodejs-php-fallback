@@ -101,7 +101,7 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
-    protected static function getNpmConfig(Composer $composer, array $dependancies)
+    protected static function getNpmConfig(Composer $composer, array $dependencies)
     {
         $vendorDir = $composer->getConfig()->get('vendor-dir');
         $config = $composer->getPackage()->getExtra();
@@ -110,8 +110,8 @@ class NodejsPhpFallback
             ? (array) $config['npm']
             : array();
 
-        foreach ($dependancies as $dependancy) {
-            $json = new JsonFile($vendorDir . DIRECTORY_SEPARATOR . $dependancy . DIRECTORY_SEPARATOR . 'composer.json');
+        foreach ($dependencies as $dependency) {
+            $json = new JsonFile($vendorDir . DIRECTORY_SEPARATOR . $dependency . DIRECTORY_SEPARATOR . 'composer.json');
             try {
                 $dependancyConfig = $json->read();
             } catch (\RuntimeException $e) {
@@ -129,12 +129,12 @@ class NodejsPhpFallback
     {
         $composer = $event->getComposer();
         $package = $composer->getPackage();
-        $dependancies = array_merge(
+        $dependencies = array_merge(
             array_keys($package->getDevRequires()),
             array_keys($package->getRequires())
         );
         $config = $package->getExtra();
-        $npm = static::getNpmConfig($composer, $dependancies);
+        $npm = static::getNpmConfig($composer, $dependencies);
 
         if (!count($npm)) {
             $event->getIO()->write(isset($config['npm'])
