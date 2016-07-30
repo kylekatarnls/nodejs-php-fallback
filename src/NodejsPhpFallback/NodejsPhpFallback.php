@@ -101,24 +101,29 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
-    protected static function getNpmConfig(Composer $composer, array $dependencies)
+    protected static function getNpmConfig(Composer $composer)
     {
         $vendorDir = $composer->getConfig()->get('vendor-dir');
-        $config = $composer->getPackage()->getExtra();
 
-        $npm = isset($config['npm'])
-            ? (array) $config['npm']
-            : array();
+        $npm = array();
 
-        foreach ($dependencies as $dependency) {
-            $json = new JsonFile($vendorDir . DIRECTORY_SEPARATOR . $dependency . DIRECTORY_SEPARATOR . 'composer.json');
-            try {
-                $dependancyConfig = $json->read();
-            } catch (\RuntimeException $e) {
-                $dependancyConfig = null;
+        foreach (scandir($vendorDir) as $namespace) {
+            if ($namespace === '.' || $namespace === '..' || !is_dir($directory = $vendorDir . DIRECTORY_SEPARATOR . $namespace)) {
+                continue;
             }
-            if (is_array($dependancyConfig) && isset($dependancyConfig['extra'], $dependancyConfig['extra']['npm'])) {
-                $npm = array_merge((array) $dependancyConfig['extra']['npm'], $npm);
+            foreach (scandir($directory) as $dependency) {
+                if ($dependency === '.' || $dependency === '..' || !is_dir($subDirectory = $directory . DIRECTORY_SEPARATOR . $dependency)) {
+                    continue;
+                }
+                $json = new JsonFile($subDirectory . DIRECTORY_SEPARATOR . 'composer.json');
+                try {
+                    $dependencyConfig = $json->read();
+                } catch (\RuntimeException $e) {
+                    $dependencyConfig = null;
+                }
+                if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra']['npm'])) {
+                    $npm = array_merge($npm, (array) $dependencyConfig['extra']['npm']);
+                }
             }
         }
 
@@ -128,15 +133,10 @@ class NodejsPhpFallback
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
-        $package = $composer->getPackage();
-        $dependencies = array_merge(
-            array_keys($package->getDevRequires()),
-            array_keys($package->getRequires())
-        );
-        $config = $package->getExtra();
-        $npm = static::getNpmConfig($composer, $dependencies);
+        $npm = static::getNpmConfig($composer);
 
         if (!count($npm)) {
+            $config = $composer->getPackage()->getExtra();
             $event->getIO()->write(isset($config['npm'])
                 ? 'No packages found.'
                 : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
@@ -157,7 +157,7 @@ class NodejsPhpFallback
         }
 
         shell_exec(
-            'npm install --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages .
+            'npm install --loglevel=error --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages .
             ' > ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'NUL' : '/dev/null')
         );
     }
