@@ -2,11 +2,42 @@
 
 namespace NodejsPhpFallbackTest;
 
+use Composer\Composer;
+use Composer\Config;
+use Composer\IO\NullIO;
+use Composer\Package\RootPackage;
 use PHPUnit_Framework_TestCase;
 
 class TestCase extends PHPUnit_Framework_TestCase
 {
     protected static $deleteAfterTest = array();
+
+    protected function emulateComposer($packages)
+    {
+        $vendorDir = sys_get_temp_dir() . '/NodejsPhpFallbackVendor';
+        static::removeDirectory($vendorDir);
+        $requires = array();
+        foreach ($packages as $package => $settings) {
+            @mkdir($vendorDir . '/' . $package, 0777, true);
+            if ($settings) {
+                file_put_contents($vendorDir . '/' . $package . '/composer.json', $settings);
+            }
+            $requires[$package] = array();
+        }
+        $package = new RootPackage('bin', '1.0.0', '1.0.0');
+        $package->setRequires($requires);
+        $composer = new Composer();
+        $config = new Config();
+        $config->merge(array(
+            'config' => array(
+                'vendor-dir' => $vendorDir,
+            ),
+        ));
+        $composer->setConfig($config);
+        $composer->setPackage($package);
+
+        return $composer;
+    }
 
     protected function appDirectory()
     {
@@ -30,14 +61,17 @@ class TestCase extends PHPUnit_Framework_TestCase
                         continue;
                     }
                     // move before delete to avoid Windows too long name error
-                    rename($dir . '/' . $object, sys_get_temp_dir() . '/to-delete');
-                    unlink(sys_get_temp_dir() . '/to-delete');
+                    try {
+                        @rename($dir . '/' . $object, sys_get_temp_dir() . '/to-delete');
+                        @unlink(sys_get_temp_dir() . '/to-delete');
+                    } catch (\Exception $e) {
+                    }
                 }
             }
-            rmdir($dir);
+            @rmdir($dir);
         }
         if (is_file($dir)) {
-            unlink($dir);
+            @unlink($dir);
         }
     }
 
@@ -46,5 +80,6 @@ class TestCase extends PHPUnit_Framework_TestCase
         foreach (static::$deleteAfterTest as $directory) {
             static::removeDirectory(__DIR__ . '/../../' . $directory);
         }
+        static::removeDirectory(sys_get_temp_dir() . '/NodejsPhpFallbackVendor');
     }
 }

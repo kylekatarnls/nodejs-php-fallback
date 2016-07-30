@@ -1,8 +1,5 @@
 <?php
 
-use Composer\Composer;
-use Composer\Config;
-use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\ComposerPlugin;
 use NodejsPhpFallbackTest\TestCase;
@@ -13,14 +10,9 @@ class ComposerPluginTest extends TestCase
 
     public function testPluginActivate()
     {
-        static::removeTestDirectories();
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
-            'npm' => 'stylus',
+        $composer = $this->emulateComposer(array(
+            'toto/toto' => '{"extra":{"npm":"stylus"}}',
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         $plugin = new ComposerPlugin();
