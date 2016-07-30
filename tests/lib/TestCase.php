@@ -4,7 +4,6 @@ namespace NodejsPhpFallbackTest;
 
 use Composer\Composer;
 use Composer\Config;
-use Composer\IO\NullIO;
 use Composer\Package\RootPackage;
 use PHPUnit_Framework_TestCase;
 

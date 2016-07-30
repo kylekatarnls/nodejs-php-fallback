@@ -1,9 +1,7 @@
 <?php
 
-use Composer\Composer;
 use Composer\Config;
 use Composer\IO\NullIO;
-use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
 use NodejsPhpFallbackTest\TestCase;
@@ -56,8 +54,8 @@ class NodejsPhpFallbackTest extends TestCase
     public function testInstallDependancies()
     {
         $composer = $this->emulateComposer(array(
-            'foo/bar' => '{"extra":{"npm":"stylus"}}',
-            'baz/boo' => '{"extra":{"npm":["pug-cli"]}}',
+            'foo/bar'   => '{"extra":{"npm":"stylus"}}',
+            'baz/boo'   => '{"extra":{"npm":["pug-cli"]}}',
             'not/found' => false,
         ));
         $io = new NullIO();
