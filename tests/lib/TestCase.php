@@ -12,9 +12,14 @@ class TestCase extends PHPUnit_Framework_TestCase
 {
     protected static $deleteAfterTest = array();
 
+    protected static function getVendorDir()
+    {
+        return sys_get_temp_dir() . '/NodejsPhpFallbackVendor';
+    }
+
     protected function emulateComposer($packages)
     {
-        $vendorDir = sys_get_temp_dir() . '/NodejsPhpFallbackVendor';
+        $vendorDir = static::getVendorDir();
         static::removeDirectory($vendorDir);
         $requires = array();
         foreach ($packages as $package => $settings) {
@@ -80,6 +85,6 @@ class TestCase extends PHPUnit_Framework_TestCase
         foreach (static::$deleteAfterTest as $directory) {
             static::removeDirectory(__DIR__ . '/../../' . $directory);
         }
-        static::removeDirectory(sys_get_temp_dir() . '/NodejsPhpFallbackVendor');
+        static::removeDirectory(static::getVendorDir());
     }
 }
