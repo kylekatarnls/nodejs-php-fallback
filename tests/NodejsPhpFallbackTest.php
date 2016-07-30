@@ -1,9 +1,7 @@
 <?php
 
-use Composer\Composer;
 use Composer\Config;
 use Composer\IO\NullIO;
-use Composer\Package\RootPackage;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
 use NodejsPhpFallbackTest\TestCase;
@@ -24,13 +22,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testStringInstall()
     {
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
-            'npm' => 'stylus',
+        $composer = $this->emulateComposer(array(
+            'toto/toto' => '{"extra":{"npm":"stylus"}}',
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -45,16 +39,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testArrayInstall()
     {
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
-            'npm' => array(
-                'stylus',
-                'pug-cli',
-            ),
+        $composer = $this->emulateComposer(array(
+            'toto/toto' => '{"extra":{"npm":["stylus","pug-cli"]}}',
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -66,27 +53,11 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallDependancies()
     {
-        $vendorDir = sys_get_temp_dir() . '/NodejsPhpFallbackVendor';
-        static::removeDirectory($vendorDir);
-        mkdir($vendorDir . '/foo/bar', 0777, true);
-        file_put_contents($vendorDir . '/foo/bar/composer.json', '{"extra":{"npm":"stylus"}}');
-        mkdir($vendorDir . '/baz/boo', 0777, true);
-        file_put_contents($vendorDir . '/baz/boo/composer.json', '{"extra":{"npm":["pug-cli"]}}');
-        $package = new RootPackage('bin', '1.0.0', '1.0.0');
-        $package->setRequires(array(
-            'foo/bar'   => array(),
-            'baz/boo'   => array(),
-            'not/found' => array(),
+        $composer = $this->emulateComposer(array(
+            'foo/bar'   => '{"extra":{"npm":"stylus"}}',
+            'baz/boo'   => '{"extra":{"npm":["pug-cli"]}}',
+            'not/found' => false,
         ));
-        $composer = new Composer();
-        $config = new Config();
-        $config->merge(array(
-            'config' => array(
-                'vendor-dir' => $vendorDir,
-            ),
-        ));
-        $composer->setConfig($config);
-        $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -94,21 +65,13 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
         static::removeTestDirectories();
-        static::removeDirectory($vendorDir);
     }
 
     public function testInstall()
     {
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
-            'npm' => array(
-                'stylus'  => '^0.54',
-                'pug-cli' => '*',
-            ),
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -265,15 +228,9 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testBadConfig()
     {
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
-            'no-npm' => array(
-                'foo' => '^1.0',
-            ),
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"no-npm":{"foo":"^1.0"}}}',
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -287,13 +244,12 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testEmptyConfig()
     {
-        $package = new RootPackage('foo', '1.0.0', '1.0.0');
-        $package->setExtra(array(
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{}}}',
+        ));
+        $composer->getPackage()->setExtra(array(
             'npm' => array(),
         ));
-        $composer = new Composer();
-        $composer->setConfig(new Config());
-        $composer->setPackage($package);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
