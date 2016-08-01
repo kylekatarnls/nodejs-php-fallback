@@ -101,6 +101,19 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
+    protected static function appendConfig(&$npm, $directory)
+    {
+        $json = new JsonFile($directory . DIRECTORY_SEPARATOR . 'composer.json');
+        try {
+            $dependencyConfig = $json->read();
+        } catch (\RuntimeException $e) {
+            $dependencyConfig = null;
+        }
+        if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra']['npm'])) {
+            $npm = array_merge($npm, (array) $dependencyConfig['extra']['npm']);
+        }
+    }
+
     protected static function getNpmConfig(Composer $composer)
     {
         $vendorDir = $composer->getConfig()->get('vendor-dir');
@@ -115,17 +128,10 @@ class NodejsPhpFallback
                 if ($dependency === '.' || $dependency === '..' || !is_dir($subDirectory = $directory . DIRECTORY_SEPARATOR . $dependency)) {
                     continue;
                 }
-                $json = new JsonFile($subDirectory . DIRECTORY_SEPARATOR . 'composer.json');
-                try {
-                    $dependencyConfig = $json->read();
-                } catch (\RuntimeException $e) {
-                    $dependencyConfig = null;
-                }
-                if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra']['npm'])) {
-                    $npm = array_merge($npm, (array) $dependencyConfig['extra']['npm']);
-                }
+                static::appendConfig($npm, $subDirectory);
             }
         }
+        static::appendConfig($npm, dirname($vendorDir));
 
         return $npm;
     }
