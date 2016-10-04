@@ -34,10 +34,10 @@ class NodejsPhpFallback
 
     protected function shellExec($withNode)
     {
-        $preffix = $withNode ? $this->nodePath . ' ' : '';
+        $prefix = $withNode ? $this->nodePath . ' ' : '';
 
-        return function ($script) use ($preffix) {
-            return shell_exec($preffix . $script);
+        return function ($script) use ($prefix) {
+            return shell_exec($prefix . $script);
         };
     }
 
