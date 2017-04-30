@@ -49,7 +49,7 @@ function getCssFromStylusFile($stylusFile)
         $stylus = new Stylus();
 
         return $stylus->fromFile($stylusFile)->toString();
-    }
+    };
 
     return $node->execModuleScript('stylus', 'bin/stylus', '--print ' . escapeshellarg($stylusFile), $fallback);
 }
