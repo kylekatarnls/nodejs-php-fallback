@@ -34,6 +34,9 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertSame(realpath(static::appDirectory() . '/node_modules'), NodejsPhpFallback::getNodeModules());
         $this->assertSame(realpath(static::appDirectory() . '/node_modules/stylus'), NodejsPhpFallback::getNodeModule('stylus'));
         $this->assertSame(escapeshellarg(realpath(static::appDirectory() . '/node_modules/stylus/bin/stylus')), NodejsPhpFallback::getModuleScript('stylus', 'bin/stylus'));
+        NodejsPhpFallback::setModulePath('stylus', 'custom/stylus');
+        $this->assertSame('custom/stylus', NodejsPhpFallback::getNodeModule('stylus'));
+        NodejsPhpFallback::setModulePath('stylus', null);
         static::removeTestDirectories();
     }
 
