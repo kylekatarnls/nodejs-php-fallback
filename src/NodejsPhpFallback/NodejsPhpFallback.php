@@ -10,6 +10,8 @@ class NodejsPhpFallback
 {
     protected $nodePath;
 
+    protected static $modulePaths = array();
+
     public function __construct($nodePath = null)
     {
         $this->nodePath = $nodePath ?: 'node';
@@ -87,6 +89,11 @@ class NodejsPhpFallback
         );
     }
 
+    public static function setModulePath($module, $path)
+    {
+        static::$modulePaths[$module] = $path;
+    }
+
     public static function getPrefixPath()
     {
         return dirname(dirname(__DIR__));
@@ -99,7 +106,9 @@ class NodejsPhpFallback
 
     public static function getNodeModule($module)
     {
-        return static::getNodeModules() . DIRECTORY_SEPARATOR . $module;
+        return empty(static::$modulePaths[$module])
+            ? static::getNodeModules() . DIRECTORY_SEPARATOR . $module
+            : static::$modulePaths[$module];
     }
 
     public static function getModuleScript($module, $script)
