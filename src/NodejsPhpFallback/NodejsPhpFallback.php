@@ -15,6 +15,18 @@ class NodejsPhpFallback
         $this->nodePath = $nodePath ?: 'node';
     }
 
+    public function setNodePath($nodePath)
+    {
+        $this->nodePath = $nodePath;
+
+        return $this;
+    }
+
+    public function getNodePath()
+    {
+        return $this->nodePath;
+    }
+
     protected function checkFallback($fallback)
     {
         if ($this->isNodeInstalled()) {
@@ -34,7 +46,7 @@ class NodejsPhpFallback
 
     protected function shellExec($withNode)
     {
-        $prefix = $withNode ? $this->nodePath . ' ' : '';
+        $prefix = $withNode ? $this->getNodePath() . ' ' : '';
 
         return function ($script) use ($prefix) {
             return shell_exec($prefix . $script);
