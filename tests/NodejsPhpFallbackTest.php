@@ -296,4 +296,16 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertSame('foo', $output, 'Fallback must be called if the node is not installed, and the input script should be passed to it.');
         $this->assertSame('bar', $return, 'Fallback returned value must be sent throught nodeExec.');
     }
+
+    public function testSetNodePath()
+    {
+        $node = new NodejsPhpFallback('foo');
+
+        $this->assertSame('foo', $node->getNodePath());
+
+        $copy = $node->setNodePath('bar');
+
+        $this->assertSame('bar', $node->getNodePath());
+        $this->assertSame($copy, $node);
+    }
 }
