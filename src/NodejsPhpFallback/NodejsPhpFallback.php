@@ -96,6 +96,11 @@ class NodejsPhpFallback
         static::$modulePaths[$module] = $path;
     }
 
+    public static function setMaxInstallRetry($count)
+    {
+        static::$maxInstallRetry = $count;
+    }
+
     public static function getPrefixPath()
     {
         return dirname(dirname(__DIR__));
@@ -200,6 +205,6 @@ class NodejsPhpFallback
             }
         }
 
-        $event->getIO()->write('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        $event->getIO()->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
     }
 }

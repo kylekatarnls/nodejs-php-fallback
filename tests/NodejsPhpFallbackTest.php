@@ -45,12 +45,29 @@ class NodejsPhpFallbackTest extends TestCase
         $composer = $this->emulateComposer(array(
             'toto/toto' => '{"extra":{"npm":["stylus","pug-cli"]}}',
         ));
-        $io = new NullIO();
+        $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
+        $this->assertSame('Packages installed.', $io->getLastOutput());
+        $this->assertFalse($io->isErrored());
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInstallFailure()
+    {
+        $composer = $this->emulateComposer(array(
+            'toto/toto' => '{"extra":{"npm":["i-m-pretty-sure-this-plugin-does-not-exist"]}}',
+        ));
+        $io = new CaptureIO();
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::setMaxInstallRetry(2);
+        NodejsPhpFallback::install($event);
+
+        $this->assertSame('Installation failed after 2 tries.', $io->getLastOutput());
+        $this->assertTrue($io->isErrored());
         static::removeTestDirectories();
     }
 
