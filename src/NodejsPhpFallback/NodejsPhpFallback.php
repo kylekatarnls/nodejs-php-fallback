@@ -12,6 +12,8 @@ class NodejsPhpFallback
 
     protected static $modulePaths = array();
 
+    protected static $maxInstallRetry = 3;
+
     public function __construct($nodePath = null)
     {
         $this->nodePath = $nodePath ?: 'node';
@@ -51,7 +53,7 @@ class NodejsPhpFallback
         $prefix = $withNode ? $this->getNodePath() . ' ' : '';
 
         return function ($script) use ($prefix) {
-            return shell_exec($prefix . $script);
+            return shell_exec($prefix . $script . ' 2>&1');
         };
     }
 
@@ -183,9 +185,21 @@ class NodejsPhpFallback
             $packages .= ' ' . $install;
         }
 
-        shell_exec(
-            'npm install --loglevel=error --prefix ' . escapeshellarg(static::getPrefixPath()) . $packages .
-            ' > ' . (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'NUL' : '/dev/null')
-        );
+        for ($i = static::$maxInstallRetry; $i > 0; $i--) {
+            $result = shell_exec(
+                'npm install --loglevel=error ' .
+                '--prefix ' . escapeshellarg(static::getPrefixPath()) .
+                $packages .
+                ' 2>&1'
+            );
+
+            if (strpos($result, 'npm ERR!') === false) {
+                $event->getIO()->write('Packages installed.');
+
+                return;
+            }
+        }
+
+        $event->getIO()->write('Installation failed after ' . static::$maxInstallRetry . ' tries.');
     }
 }
