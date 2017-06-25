@@ -20,6 +20,17 @@ class NodejsPhpFallbackTest extends TestCase
         static::removeTestDirectories();
     }
 
+    public function testNodeVersion()
+    {
+        $node = new NodejsPhpFallback();
+        $version = ltrim($node->nodeExec('--version'), 'v');
+
+        self::assertTrue(
+            version_compare($version, '7') >= 0,
+            'Unit tests should be run with node 7. node --version: '.$version
+        );
+    }
+
     public function testStringInstall()
     {
         $composer = $this->emulateComposer(array(
