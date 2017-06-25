@@ -129,6 +129,21 @@ class NodejsPhpFallback
         return escapeshellarg(realpath($path));
     }
 
+    public static function isInstalledPackage($packages)
+    {
+        if (!is_array($packages)) {
+            $packages = array($packages);
+        }
+
+        foreach ($packages as $package) {
+            if (!file_exists(static::getNodeModule($package))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected static function appendConfig(&$npm, $directory)
     {
         $json = new JsonFile($directory . DIRECTORY_SEPARATOR . 'composer.json');
@@ -180,11 +195,13 @@ class NodejsPhpFallback
         }
 
         $packages = '';
+        $packageNames = array();
         foreach ($npm as $package => $version) {
             if (is_int($package)) {
                 $package = $version;
                 $version = '*';
             }
+            $packageNames[] = $package;
             $install = $package . '@"' . addslashes($version) . '"';
             $event->getIO()->write('Package found added to be installed with npm: ' . $install);
             $packages .= ' ' . $install;
@@ -198,7 +215,7 @@ class NodejsPhpFallback
                 ' 2>&1'
             );
 
-            if (strpos($result, 'npm ERR!') === false) {
+            if (strpos($result, 'npm ERR!') === false && static::isInstalledPackage($packageNames)) {
                 $event->getIO()->write('Packages installed.');
 
                 return;
