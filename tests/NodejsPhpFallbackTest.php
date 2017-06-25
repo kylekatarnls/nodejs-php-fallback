@@ -27,7 +27,7 @@ class NodejsPhpFallbackTest extends TestCase
 
         self::assertTrue(
             version_compare($version, '7') >= 0,
-            'Unit tests should be run with node 7. node --version: '.$version
+            'Unit tests should be run with node 7. node --version: ' . $version
         );
     }
 
