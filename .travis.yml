@@ -12,12 +12,15 @@ node_js:
   - '7'
 
 matrix:
-    include:
-        - php: hhvm
-          dist: trusty
-          sudo: required
+  include:
+    - php: hhvm
+      dist: trusty
+      sudo: required
 
 before_script:
+  - sudo npm cache clean -f
+  - sudo npm install -g n
+  - sudo n stable
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
 
