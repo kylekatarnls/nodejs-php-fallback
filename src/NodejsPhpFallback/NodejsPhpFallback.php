@@ -147,11 +147,13 @@ class NodejsPhpFallback
     protected static function appendConfig(&$npm, $directory)
     {
         $json = new JsonFile($directory . DIRECTORY_SEPARATOR . 'composer.json');
+
         try {
             $dependencyConfig = $json->read();
         } catch (\RuntimeException $e) {
             $dependencyConfig = null;
         }
+
         if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra']['npm'])) {
             $npm = array_merge($npm, (array) $dependencyConfig['extra']['npm']);
         }
