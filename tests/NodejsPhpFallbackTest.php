@@ -111,6 +111,17 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
     }
 
+    public function testInstallPackages()
+    {
+        NodejsPhpFallback::installPackages(array(
+            'stylus'  => '^0.54',
+            'pug-cli' => '*',
+        ));
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+    }
+
     /**
      * @depends testInstall
      */

@@ -179,6 +179,39 @@ class NodejsPhpFallback
         return $npm;
     }
 
+    public static function installPackages($npm, $onFound = null)
+    {
+        $packages = '';
+        $packageNames = array();
+        foreach ($npm as $package => $version) {
+            if (is_int($package)) {
+                $package = $version;
+                $version = '*';
+            }
+            $packageNames[] = $package;
+            $install = $package . '@"' . addslashes($version) . '"';
+            if ($onFound) {
+                call_user_func($onFound, $install);
+            }
+            $packages .= ' ' . $install;
+        }
+
+        for ($i = static::$maxInstallRetry; $i > 0; $i--) {
+            $result = shell_exec(
+                'npm install --loglevel=error ' .
+                '--prefix ' . escapeshellarg(static::getPrefixPath()) .
+                $packages .
+                ' 2>&1'
+            );
+
+            if (strpos($result, 'npm ERR!') === false && static::isInstalledPackage($packageNames)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
@@ -194,34 +227,10 @@ class NodejsPhpFallback
             return;
         }
 
-        $packages = '';
-        $packageNames = array();
-        foreach ($npm as $package => $version) {
-            if (is_int($package)) {
-                $package = $version;
-                $version = '*';
-            }
-            $packageNames[] = $package;
-            $install = $package . '@"' . addslashes($version) . '"';
+        static::installPackages($npm, function ($install) use ($event) {
             $event->getIO()->write('Package found added to be installed with npm: ' . $install);
-            $packages .= ' ' . $install;
-        }
-
-        for ($i = static::$maxInstallRetry; $i > 0; $i--) {
-            $result = shell_exec(
-                'npm install --loglevel=error ' .
-                '--prefix ' . escapeshellarg(static::getPrefixPath()) .
-                $packages .
-                ' 2>&1'
-            );
-
-            if (strpos($result, 'npm ERR!') === false && static::isInstalledPackage($packageNames)) {
-                $event->getIO()->write('Packages installed.');
-
-                return;
-            }
-        }
-
-        $event->getIO()->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        })
+            ? $event->getIO()->write('Packages installed.')
+            : $event->getIO()->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
     }
 }
