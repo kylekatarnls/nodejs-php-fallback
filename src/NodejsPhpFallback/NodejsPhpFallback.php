@@ -144,9 +144,10 @@ class NodejsPhpFallback
         return true;
     }
 
-    protected static function appendConfig(&$npm, $directory)
+    protected static function appendConfig(&$npm, $directory, $key = null)
     {
         $json = new JsonFile($directory . DIRECTORY_SEPARATOR . 'composer.json');
+        $key = $key ? $key : 'npm';
 
         try {
             $dependencyConfig = $json->read();
@@ -154,12 +155,12 @@ class NodejsPhpFallback
             $dependencyConfig = null;
         }
 
-        if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra']['npm'])) {
-            $npm = array_merge($npm, (array) $dependencyConfig['extra']['npm']);
+        if (is_array($dependencyConfig) && isset($dependencyConfig['extra'], $dependencyConfig['extra'][$key])) {
+            $npm = array_merge($npm, (array) $dependencyConfig['extra'][$key]);
         }
     }
 
-    protected static function getNpmConfig(Composer $composer)
+    protected static function getNpmConfig(Composer $composer, $key = null)
     {
         $vendorDir = $composer->getConfig()->get('vendor-dir');
 
@@ -173,16 +174,20 @@ class NodejsPhpFallback
                 if ($dependency === '.' || $dependency === '..' || !is_dir($subDirectory = $directory . DIRECTORY_SEPARATOR . $dependency)) {
                     continue;
                 }
-                static::appendConfig($npm, $subDirectory);
+                static::appendConfig($npm, $subDirectory, $key);
             }
         }
-        static::appendConfig($npm, dirname($vendorDir));
+        static::appendConfig($npm, dirname($vendorDir), $key);
 
         return $npm;
     }
 
     public static function installPackages($npm, $onFound = null)
     {
+        if (!count($npm)) {
+            return true;
+        }
+
         $packages = '';
         $packageNames = array();
         foreach ($npm as $package => $version) {
@@ -214,14 +219,44 @@ class NodejsPhpFallback
         return false;
     }
 
+    public static function askForInstall(Event $event, $npmConfirm, $npm)
+    {
+        $io = $event->getIO();
+
+        if (!$io->isInteractive()) {
+            return $npm;
+        }
+
+        $confirm = array();
+        foreach ($npmConfirm as $package => $message) {
+            $confirm[$package] = $io->askConfirmation(
+                "The node package [$package] can be installed:\n$message\n" .
+                "Would you like to install/update it? (if you're not sure, you can safely " .
+                'press Y to get the package ready to use if you need it later) [Y/N] '
+            );
+        }
+
+        $packages = array();
+
+        foreach ($npm as $key => $value) {
+            $package = is_int($key) ? $value : $key;
+            if (!isset($confirm[$package]) || $confirm[$package]) {
+                $packages[$key] = $value;
+            }
+        }
+
+        return $packages;
+    }
+
     public static function install(Event $event)
     {
         $composer = $event->getComposer();
         $npm = static::getNpmConfig($composer);
+        $config = $composer->getPackage()->getExtra();
+        $io = $event->getIO();
 
         if (!count($npm)) {
-            $config = $composer->getPackage()->getExtra();
-            $event->getIO()->write(isset($config['npm'])
+            $io->write(isset($config['npm'])
                 ? 'No packages found.'
                 : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
             );
@@ -229,10 +264,20 @@ class NodejsPhpFallback
             return;
         }
 
-        static::installPackages($npm, function ($install) use ($event) {
-            $event->getIO()->write('Package found added to be installed with npm: ' . $install);
-        })
-            ? $event->getIO()->write('Packages installed.')
-            : $event->getIO()->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        $npmConfirm = static::getNpmConfig($composer, 'npm-confirm');
+        if (isset($config['npm-confirm'])) {
+            $npmConfirm = array_merge($npmConfirm, (array) $config['npm-confirm']);
+        }
+        if (count($npmConfirm)) {
+            $npm = static::askForInstall($event, $npmConfirm, $npm);
+        }
+
+        if (count($npm)) {
+            static::installPackages($npm, function ($install) use ($io) {
+                $io->write('Package added to be installed/updated with npm: ' . $install);
+            })
+                ? $io->write('Packages installed.')
+                : $io->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        }
     }
 }
