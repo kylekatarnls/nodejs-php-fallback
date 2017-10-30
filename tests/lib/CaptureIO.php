@@ -6,6 +6,17 @@ class CaptureIO extends NullIO
 {
     protected $lastMsg;
     protected $errored;
+    protected $interactive;
+
+    public function isInteractive()
+    {
+        return $this->interactive;
+    }
+
+    public function setInteractive($interactive)
+    {
+        $this->interactive = $interactive;
+    }
 
     public function write($msg, $newline = true, $verbosity = self::NORMAL)
     {
