@@ -7,6 +7,12 @@ class CaptureIO extends NullIO
     protected $lastMsg;
     protected $errored;
     protected $interactive;
+    protected $answer;
+
+    public function askConfirmation($question, $default = true)
+    {
+        return $this->answer;
+    }
 
     public function isInteractive()
     {
@@ -16,6 +22,11 @@ class CaptureIO extends NullIO
     public function setInteractive($interactive)
     {
         $this->interactive = $interactive;
+    }
+
+    public function setAnswer($answer)
+    {
+        $this->answer = $answer;
     }
 
     public function write($msg, $newline = true, $verbosity = self::NORMAL)

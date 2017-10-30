@@ -240,7 +240,7 @@ class NodejsPhpFallback
 
         foreach ($npm as $key => $value) {
             $package = is_int($key) ? $value : $key;
-            if ($confirm[$package]) {
+            if (!isset($confirm[$package]) || $confirm[$package]) {
                 $packages[$key] = $value;
             }
         }
@@ -272,10 +272,12 @@ class NodejsPhpFallback
             $npm = static::askForInstall($event, $npmConfirm, $npm);
         }
 
-        static::installPackages($npm, function ($install) use ($io) {
-            $io->write('Package added to be installed/updated with npm: ' . $install);
-        })
-            ? $io->write('Packages installed.')
-            : $io->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        if (count($npm)) {
+            static::installPackages($npm, function ($install) use ($io) {
+                $io->write('Package added to be installed/updated with npm: ' . $install);
+            })
+                ? $io->write('Packages installed.')
+                : $io->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+        }
     }
 }

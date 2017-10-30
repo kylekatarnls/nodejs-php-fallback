@@ -98,6 +98,90 @@ class NodejsPhpFallbackTest extends TestCase
         static::removeTestDirectories();
     }
 
+    public function testInstallConfirmNonInteractive()
+    {
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInstallConfirmYesAnswer()
+    {
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setAnswer(true);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInstallConfirmNoAnswer()
+    {
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInstallPackages()
+    {
+        $this->assertTrue(NodejsPhpFallback::installPackages(array()));
+
+        NodejsPhpFallback::installPackages(array(
+            'stylus'  => '^0.54',
+            'pug-cli' => '*',
+        ));
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testNpmConfirmInExtra()
+    {
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
+        ));
+        $composer->getPackage()->setExtra(array(
+            'npm-confirm' => array(
+                'pug-cli' => 'For pug',
+            ),
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        static::removeTestDirectories();
+    }
+
     public function testInstall()
     {
         $composer = $this->emulateComposer(array(
@@ -106,17 +190,6 @@ class NodejsPhpFallbackTest extends TestCase
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
-
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
-    }
-
-    public function testInstallPackages()
-    {
-        NodejsPhpFallback::installPackages(array(
-            'stylus'  => '^0.54',
-            'pug-cli' => '*',
-        ));
 
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
