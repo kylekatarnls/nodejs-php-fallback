@@ -80,3 +80,42 @@ String configuration:
     "npm": "express"
 },
 ```
+
+### Ask the user to confirm package install
+
+You can use the `npm-confirm` setting to ask the user if he want to install one
+or more npm package. This should be used to make the user aware npm packages
+will be installed, and what for they are. This is also a way to not install
+optional packages if they are used in a user specific case.
+
+```json
+"extra": {
+    "npm": [
+        "stylus",
+        "less",
+        "clean-css",
+    ],
+    "npm-confirm": {
+        "stylus": "This package is needed if you have stylus files.",
+        "less": "This package is needed if you have less files."
+    }
+},
+```
+
+With the configuration above, when the user will execute `compoers update` or
+`composer install`, he will be asked the following:
+
+```
+The node package [stylus] can be installed:
+This package is needed if you have stylus files.
+Would you like to install/update it? (if you're not sure, you can safely press Y to get the package ready to use if you need it later) [Y/N] 
+
+The node package [less] can be installed:
+This package is needed if you have less files.
+Would you like to install/update it? (if you're not sure, you can safely press Y to get the package ready to use if you need it later) [Y/N] 
+```
+
+Each of `stylus` and `less` packages will be installed only if the user enter `Y` on confirm
+or if he ran the command with the mode `--no-interaction`.
+
+The `clean-css` package will be installed with no confirm.
