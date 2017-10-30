@@ -184,6 +184,10 @@ class NodejsPhpFallback
 
     public static function installPackages($npm, $onFound = null)
     {
+        if (!count($npm)) {
+            return true;
+        }
+
         $packages = '';
         $packageNames = array();
         foreach ($npm as $package => $version) {
@@ -227,8 +231,8 @@ class NodejsPhpFallback
         foreach ($npmConfirm as $package => $message) {
             $confirm[$package] = $io->askConfirmation(
                 "The node package [$package] can be installed:\n$message\n" .
-                "Would you like to install it? (if you're not sure, you can safely " .
-                'pres Y to get the package ready to use if you need it later) [Y/N]'
+                "Would you like to install/update it? (if you're not sure, you can safely " .
+                'press Y to get the package ready to use if you need it later) [Y/N] '
             );
         }
 
