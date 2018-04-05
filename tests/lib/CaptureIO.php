@@ -8,6 +8,12 @@ class CaptureIO extends NullIO
     protected $errored;
     protected $interactive;
     protected $answer;
+    protected $initialAnswer;
+
+    public function ask($question, $default = null)
+    {
+        return $this->initialAnswer;
+    }
 
     public function askConfirmation($question, $default = true)
     {
@@ -27,6 +33,11 @@ class CaptureIO extends NullIO
     public function setAnswer($answer)
     {
         $this->answer = $answer;
+    }
+
+    public function setInitialAnswer($answer)
+    {
+        $this->initialAnswer = $answer;
     }
 
     public function write($msg, $newline = true, $verbosity = self::NORMAL)

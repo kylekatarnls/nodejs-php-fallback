@@ -10,6 +10,12 @@ class NodejsPhpFallbackTest extends TestCase
 {
     protected static $deleteAfterTest = array('node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd');
 
+    protected function setUp()
+    {
+        parent::setUp();
+        NodejsPhpFallback::forgetConfirmRemindedChoice();
+    }
+
     public static function setUpBeforeClass()
     {
         static::removeTestDirectories();
@@ -136,6 +142,75 @@ class NodejsPhpFallbackTest extends TestCase
         ));
         $io = new CaptureIO();
         $io->setInteractive(true);
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
+        static::removeTestDirectories();
+    }
+
+    public function testInitialAnswer()
+    {
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setInitialAnswer('Y');
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
+        static::removeTestDirectories();
+
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setInitialAnswer('N');
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
+        static::removeTestDirectories();
+
+        NodejsPhpFallback::forgetConfirmRemindedChoice();
+
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setInitialAnswer('N');
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
+        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
+        static::removeTestDirectories();
+
+        $composer = $this->emulateComposer(array(
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
+        ));
+        $io = new CaptureIO();
+        $io->setInteractive(true);
+        $io->setInitialAnswer('Y');
         $io->setAnswer(false);
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
