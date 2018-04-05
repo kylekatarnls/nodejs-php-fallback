@@ -258,10 +258,10 @@ class NodejsPhpFallback
         $count = count($npmConfirm);
         $packageWord = $count > 1 ? 'packages' : 'package';
         $manual = static::getGlobalInstallChoice($io,
-            "$count node $packageWord can be installed optionally installed/updated.\n" .
-            "Enter Y to install/update them automatically on composer install/update.\n" .
-            "Enter N to ignore them and not asking again.\n" .
-            'Enter M to manually decide for each package at each run. [Y/N/M] '
+            "$count node $packageWord can be optionally installed/updated.\n" .
+            "  - Enter Y to install/update them automatically on composer install/update.\n" .
+            "  - Enter N to ignore them and not asking again.\n" .
+            '  - Enter M to manually decide for each package at each run. [Y/N/M] '
         );
         $manual = ($manual === 'y' ? true : ($manual === 'n' ? false : null));
 
