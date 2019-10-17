@@ -1,6 +1,5 @@
 <?php
 
-use Composer\Config;
 use Composer\IO\NullIO;
 use Composer\Script\Event;
 use NodejsPhpFallback\NodejsPhpFallback;
