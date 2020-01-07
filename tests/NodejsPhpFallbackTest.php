@@ -497,4 +497,15 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertSame('bar', $node->getNodePath());
         $this->assertSame($copy, $node);
     }
+
+    public function testEnvAnswer()
+    {
+        putenv('NODEJS_PHP_FALLBACK_ANSWER=y');
+        $method = new ReflectionMethod('NodejsPhpFallback\\NodejsPhpFallback', 'getGlobalInstallChoice');
+        $method->setAccessible(true);
+        $answer = $method->invoke(null, new NullIO(), '');
+        putenv('NODEJS_PHP_FALLBACK_ANSWER');
+
+        $this->assertSame('y', $answer);
+    }
 }

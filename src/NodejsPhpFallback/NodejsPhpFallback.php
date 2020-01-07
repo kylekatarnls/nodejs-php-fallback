@@ -236,7 +236,14 @@ class NodejsPhpFallback
 
     protected static function getGlobalInstallChoice(IOInterface $io, $message)
     {
+        $answer = getenv('NODEJS_PHP_FALLBACK_ANSWER');
+
+        if (is_string($answer) && $answer !== '') {
+            return $answer;
+        }
+
         $remindedChoice = static::getConfirmRemindedChoiceFile();
+
         if (!file_exists($remindedChoice) || !is_readable($remindedChoice)) {
             $manual = strtolower($io->ask($message));
             @file_put_contents($remindedChoice, $manual);
