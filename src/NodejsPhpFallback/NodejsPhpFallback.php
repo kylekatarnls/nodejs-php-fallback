@@ -6,6 +6,8 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use Composer\Script\Event;
+use Exception;
+use Throwable;
 
 class NodejsPhpFallback
 {
@@ -245,7 +247,14 @@ class NodejsPhpFallback
         $remindedChoice = static::getConfirmRemindedChoiceFile();
 
         if (!file_exists($remindedChoice) || !is_readable($remindedChoice)) {
-            $manual = strtolower($io->ask($message));
+            try {
+                $manual = strtolower($io->ask($message));
+            } catch (Exception $e) {
+                return 'y';
+            } catch (Throwable $e) {
+                return 'y';
+            }
+
             @file_put_contents($remindedChoice, $manual);
 
             return $manual;
