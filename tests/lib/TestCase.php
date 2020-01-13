@@ -5,9 +5,9 @@ namespace NodejsPhpFallbackTest;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Package\RootPackage;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
-class TestCase extends PHPUnit_Framework_TestCase
+class TestCase extends PHPUnitTestCase
 {
     protected static $deleteAfterTest = array();
 
