@@ -18,9 +18,9 @@ class ComposerPluginTest extends TestCase
         $plugin = new ComposerPlugin();
         $plugin->activate($composer, $io);
         $events = ComposerPlugin::getSubscribedEvents();
-        $this->assertInternalType('array', $events);
-        $this->assertInternalType('array', $events['post-autoload-dump']);
-        $this->assertInternalType('array', $events['post-autoload-dump'][0]);
+        $this->assertIsArray($events);
+        $this->assertIsArray($events['post-autoload-dump']);
+        $this->assertIsArray($events['post-autoload-dump'][0]);
         $method = $events['post-autoload-dump'][0][0];
         $plugin->$method($event);
 
