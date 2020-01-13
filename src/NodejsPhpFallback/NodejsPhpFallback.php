@@ -41,7 +41,7 @@ class NodejsPhpFallback
 
     protected static function getConfirmRemindedChoiceFile()
     {
-        return __DIR__ . '/npm-confirm-reminded-choice.txt';
+        return __DIR__.'/npm-confirm-reminded-choice.txt';
     }
 
     public static function install(Event $event)
@@ -62,7 +62,7 @@ class NodejsPhpFallback
 
         $npmConfirm = static::getNpmConfig($composer, 'npm-confirm');
         if (isset($config['npm-confirm'])) {
-            $npmConfirm = array_merge($npmConfirm, (array)$config['npm-confirm']);
+            $npmConfirm = array_merge($npmConfirm, (array) $config['npm-confirm']);
         }
         if (count($npmConfirm)) {
             $npm = static::askForInstall($event, $npmConfirm, $npm);
@@ -70,10 +70,10 @@ class NodejsPhpFallback
 
         if (count($npm)) {
             static::installPackages($npm, function ($install) use ($io) {
-                $io->write('Package added to be installed/updated with npm: ' . $install);
+                $io->write('Package added to be installed/updated with npm: '.$install);
             })
                 ? $io->write('Packages installed.')
-                : $io->writeError('Installation failed after ' . static::$maxInstallRetry . ' tries.');
+                : $io->writeError('Installation failed after '.static::$maxInstallRetry.' tries.');
         }
     }
 
@@ -84,12 +84,12 @@ class NodejsPhpFallback
         $npm = [];
 
         foreach (scandir($vendorDir) as $namespace) {
-            if ($namespace === '.' || $namespace === '..' || !is_dir($directory = $vendorDir . DIRECTORY_SEPARATOR . $namespace)) {
+            if ($namespace === '.' || $namespace === '..' || !is_dir($directory = $vendorDir.DIRECTORY_SEPARATOR.$namespace)) {
                 continue;
             }
 
             foreach (scandir($directory) as $dependency) {
-                if ($dependency === '.' || $dependency === '..' || !is_dir($subDirectory = $directory . DIRECTORY_SEPARATOR . $dependency)) {
+                if ($dependency === '.' || $dependency === '..' || !is_dir($subDirectory = $directory.DIRECTORY_SEPARATOR.$dependency)) {
                     continue;
                 }
 
@@ -104,7 +104,7 @@ class NodejsPhpFallback
 
     protected static function appendConfig(&$npm, $directory, $key = null)
     {
-        $json = new JsonFile($directory . DIRECTORY_SEPARATOR . 'composer.json');
+        $json = new JsonFile($directory.DIRECTORY_SEPARATOR.'composer.json');
         $key = $key ? $key : 'npm';
 
         try {
@@ -129,9 +129,9 @@ class NodejsPhpFallback
         $count = count($npmConfirm);
         $packageWord = $count > 1 ? 'packages' : 'package';
         $manual = static::getGlobalInstallChoice($io,
-            "$count node $packageWord can be optionally installed/updated.\n" .
-            "  - Enter Y to install/update them automatically on composer install/update.\n" .
-            "  - Enter N to ignore them and not asking again.\n" .
+            "$count node $packageWord can be optionally installed/updated.\n".
+            "  - Enter Y to install/update them automatically on composer install/update.\n".
+            "  - Enter N to ignore them and not asking again.\n".
             '  - Enter M to manually decide for each package at each run. [Y/N/M] '
         );
         $manual = ($manual === 'y' ? true : ($manual === 'n' ? false : null));
@@ -140,8 +140,8 @@ class NodejsPhpFallback
 
         foreach ($npmConfirm as $package => $message) {
             $confirm[$package] = $manual === null ? $io->askConfirmation(
-                "The node package [$package] can be installed:\n$message\n" .
-                "Would you like to install/update it? (if you're not sure, you can safely " .
+                "The node package [$package] can be installed:\n$message\n".
+                "Would you like to install/update it? (if you're not sure, you can safely ".
                 'press Y to get the package ready to use if you need it later) [Y/N] '
             ) : $manual;
         }
@@ -202,20 +202,20 @@ class NodejsPhpFallback
             }
 
             $packageNames[] = $package;
-            $install = $package . '@"' . addslashes($version) . '"';
+            $install = $package.'@"'.addslashes($version).'"';
 
             if ($onFound) {
                 call_user_func($onFound, $install);
             }
 
-            $packages .= ' ' . $install;
+            $packages .= ' '.$install;
         }
 
         for ($i = static::$maxInstallRetry; $i > 0; $i--) {
             $result = shell_exec(
-                'npm install --loglevel=error ' .
-                '--prefix ' . escapeshellarg(static::getPrefixPath()) .
-                $packages .
+                'npm install --loglevel=error '.
+                '--prefix '.escapeshellarg(static::getPrefixPath()).
+                $packages.
                 ' 2>&1'
             );
 
@@ -282,10 +282,10 @@ class NodejsPhpFallback
 
     protected function shellExec($withNode)
     {
-        $prefix = $withNode ? $this->getNodePath() . ' ' : '';
+        $prefix = $withNode ? $this->getNodePath().' ' : '';
 
         return function ($script) use ($prefix) {
-            return shell_exec($prefix . $script . ' 2>&1');
+            return shell_exec($prefix.$script.' 2>&1');
         };
     }
 
@@ -304,7 +304,7 @@ class NodejsPhpFallback
     public function execModuleScript($module, $script, $arguments, $fallback = null)
     {
         return $this->nodeExec(
-            static::getModuleScript($module, $script) . (empty($arguments) ? '' : ' ' . $arguments),
+            static::getModuleScript($module, $script).(empty($arguments) ? '' : ' '.$arguments),
             $fallback
         );
     }
@@ -317,7 +317,7 @@ class NodejsPhpFallback
     public static function getModuleScript($module, $script)
     {
         $module = static::getNodeModule($module);
-        $path = $module . DIRECTORY_SEPARATOR . $script;
+        $path = $module.DIRECTORY_SEPARATOR.$script;
         if (!file_exists($path)) {
             throw new \InvalidArgumentException("The $script was not found in the module path $module.", 3);
         }
@@ -328,13 +328,13 @@ class NodejsPhpFallback
     public static function getNodeModule($module)
     {
         return empty(static::$modulePaths[$module])
-            ? static::getNodeModules() . DIRECTORY_SEPARATOR . $module
+            ? static::getNodeModules().DIRECTORY_SEPARATOR.$module
             : static::$modulePaths[$module];
     }
 
     public static function getNodeModules()
     {
-        return static::getPrefixPath() . DIRECTORY_SEPARATOR . 'node_modules';
+        return static::getPrefixPath().DIRECTORY_SEPARATOR.'node_modules';
     }
 
     public static function getPrefixPath()

@@ -24,7 +24,7 @@ class ComposerPluginTest extends TestCase
         $method = $events['post-autoload-dump'][0][0];
         $plugin->$method($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
         static::removeTestDirectories();
     }
 }
