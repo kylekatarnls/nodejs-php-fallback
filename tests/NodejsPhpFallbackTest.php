@@ -7,20 +7,20 @@ use NodejsPhpFallbackTest\TestCase;
 
 class NodejsPhpFallbackTest extends TestCase
 {
-    protected static $deleteAfterTest = array('node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd');
+    protected static $deleteAfterTest = ['node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd'];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         NodejsPhpFallback::forgetConfirmRemindedChoice();
     }
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::removeTestDirectories();
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         static::removeTestDirectories();
     }
@@ -38,9 +38,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testStringInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":"stylus"}}',
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -58,9 +58,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testArrayInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":["stylus","pug-cli"]}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -74,9 +74,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallFailure()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":["i-m-pretty-sure-this-plugin-does-not-exist"]}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::setMaxInstallRetry(2);
@@ -89,11 +89,11 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallDependancies()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'foo/bar'   => '{"extra":{"npm":"stylus"}}',
             'baz/boo'   => '{"extra":{"npm":["pug-cli"]}}',
             'not/found' => false,
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -105,9 +105,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallConfirmNonInteractive()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(false);
         $event = new Event('install', $composer, $io);
@@ -120,9 +120,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallConfirmYesAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(true);
@@ -136,9 +136,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallConfirmNoAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(false);
@@ -154,9 +154,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInitialAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('Y');
@@ -170,9 +170,9 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('N');
@@ -188,9 +188,9 @@ class NodejsPhpFallbackTest extends TestCase
 
         NodejsPhpFallback::forgetConfirmRemindedChoice();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('N');
@@ -204,9 +204,9 @@ class NodejsPhpFallbackTest extends TestCase
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('Y');
@@ -223,12 +223,12 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallPackages()
     {
-        $this->assertTrue(NodejsPhpFallback::installPackages(array()));
+        $this->assertTrue(NodejsPhpFallback::installPackages([]));
 
-        NodejsPhpFallback::installPackages(array(
+        NodejsPhpFallback::installPackages([
             'stylus'  => '^0.54',
             'pug-cli' => '*',
-        ));
+        ]);
 
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
         $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
@@ -237,14 +237,14 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testNpmConfirmInExtra()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
-        ));
-        $composer->getPackage()->setExtra(array(
-            'npm-confirm' => array(
+        ]);
+        $composer->getPackage()->setExtra([
+            'npm-confirm' => [
                 'pug-cli' => 'For pug',
-            ),
-        ));
+            ],
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(false);
@@ -258,9 +258,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -417,9 +417,9 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testBadConfig()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"no-npm":{"foo":"^1.0"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -433,12 +433,12 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testEmptyConfig()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{}}}',
-        ));
-        $composer->getPackage()->setExtra(array(
-            'npm' => array(),
-        ));
+        ]);
+        $composer->getPackage()->setExtra([
+            'npm' => [],
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
