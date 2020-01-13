@@ -48,7 +48,7 @@ class NodejsPhpFallbackTest extends TestCase
         static::removeDirectory(__DIR__.'/../node_modules');
 
         $this->assertSame(42, $withFallback);
-        $this->assertSame(null, $withoutFallback);
+        $this->assertNull($withoutFallback);
     }
 
     public function testGetPath()

@@ -45,7 +45,7 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
         $this->assertSame(realpath(static::appDirectory()), NodejsPhpFallback::getPrefixPath());
         $this->assertSame(realpath(static::appDirectory().'/node_modules'), NodejsPhpFallback::getNodeModules());
         $this->assertSame(realpath(static::appDirectory().'/node_modules/stylus'), NodejsPhpFallback::getNodeModule('stylus'));
@@ -67,8 +67,8 @@ class NodejsPhpFallbackTest extends TestCase
 
         $this->assertSame('Packages installed.', $io->getLastOutput());
         $this->assertFalse($io->isErrored());
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -98,8 +98,8 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -113,8 +113,8 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -129,8 +129,8 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -145,9 +145,9 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryNotExists(static::appDirectory().'/node_modules/stylus');
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
     }
@@ -164,9 +164,9 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
@@ -180,9 +180,9 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
@@ -198,9 +198,9 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryNotExists(static::appDirectory().'/node_modules/stylus');
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
@@ -214,9 +214,9 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertDirectoryNotExists(static::appDirectory().'/node_modules/stylus');
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
     }
@@ -230,8 +230,8 @@ class NodejsPhpFallbackTest extends TestCase
             'pug-cli' => '*',
         ]);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -251,8 +251,8 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryNotExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -265,8 +265,8 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
     }
 
     /**
