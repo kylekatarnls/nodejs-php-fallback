@@ -324,12 +324,12 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 3
      */
     public function testModuleExecStylusWithMissingScript()
     {
-        // test
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(3);
+
         $node = new NodejsPhpFallback();
         $node->execModuleScript('stylus', 'bin/i-do-not-exists', '--print foo/bar');
     }
@@ -402,11 +402,12 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 1
      */
     public function testExecWithoutNodeNorGoodFallback()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(1);
+
         $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         chdir(static::appDirectory().'/tests/lib');
         $simple = $node->exec(escapeshellarg('.'.DIRECTORY_SEPARATOR.'simple'), 42);
@@ -449,22 +450,24 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 1
      */
     public function testNonCallableFallback()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(1);
+
         $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $node->nodeExec('foo', 'bar');
     }
 
     /**
      * @depends testInstall
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 2
      */
     public function testNoFallback()
     {
+        $this->expectException(ErrorException::class);
+        $this->expectExceptionCode(2);
+
         $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $node->nodeExec('foo');
     }
