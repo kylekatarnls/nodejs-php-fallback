@@ -7,20 +7,20 @@ use NodejsPhpFallbackTest\TestCase;
 
 class NodejsPhpFallbackTest extends TestCase
 {
-    protected static $deleteAfterTest = array('node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd');
+    protected static $deleteAfterTest = ['node_modules', 'etc', 'jade', 'jade.cmd', 'stylus', 'stylus.cmd'];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         NodejsPhpFallback::forgetConfirmRemindedChoice();
     }
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::removeTestDirectories();
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         static::removeTestDirectories();
     }
@@ -32,24 +32,24 @@ class NodejsPhpFallbackTest extends TestCase
 
         self::assertTrue(
             version_compare($version, '7') >= 0,
-            'Unit tests should be run with node 7. node --version: ' . $version
+            'Unit tests should be run with node 7. node --version: '.$version
         );
     }
 
     public function testStringInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":"stylus"}}',
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertSame(realpath(static::appDirectory()), NodejsPhpFallback::getPrefixPath());
-        $this->assertSame(realpath(static::appDirectory() . '/node_modules'), NodejsPhpFallback::getNodeModules());
-        $this->assertSame(realpath(static::appDirectory() . '/node_modules/stylus'), NodejsPhpFallback::getNodeModule('stylus'));
-        $this->assertSame(escapeshellarg(realpath(static::appDirectory() . '/node_modules/stylus/bin/stylus')), NodejsPhpFallback::getModuleScript('stylus', 'bin/stylus'));
+        $this->assertSame(realpath(static::appDirectory().'/node_modules'), NodejsPhpFallback::getNodeModules());
+        $this->assertSame(realpath(static::appDirectory().'/node_modules/stylus'), NodejsPhpFallback::getNodeModule('stylus'));
+        $this->assertSame(escapeshellarg(realpath(static::appDirectory().'/node_modules/stylus/bin/stylus')), NodejsPhpFallback::getModuleScript('stylus', 'bin/stylus'));
         NodejsPhpFallback::setModulePath('stylus', 'custom/stylus');
         $this->assertSame('custom/stylus', NodejsPhpFallback::getNodeModule('stylus'));
         NodejsPhpFallback::setModulePath('stylus', null);
@@ -58,25 +58,25 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testArrayInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":["stylus","pug-cli"]}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
         $this->assertSame('Packages installed.', $io->getLastOutput());
         $this->assertFalse($io->isErrored());
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstallFailure()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":["i-m-pretty-sure-this-plugin-does-not-exist"]}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::setMaxInstallRetry(2);
@@ -89,74 +89,74 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testInstallDependancies()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'foo/bar'   => '{"extra":{"npm":"stylus"}}',
             'baz/boo'   => '{"extra":{"npm":["pug-cli"]}}',
             'not/found' => false,
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstallConfirmNonInteractive()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(false);
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstallConfirmYesAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(true);
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstallConfirmNoAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(false);
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInitialAnswer()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('Y');
@@ -164,15 +164,15 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('N');
@@ -180,17 +180,17 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
         NodejsPhpFallback::forgetConfirmRemindedChoice();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('N');
@@ -198,15 +198,15 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
 
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"},"npm-confirm":{"stylus":"reason"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setInitialAnswer('Y');
@@ -214,59 +214,59 @@ class NodejsPhpFallbackTest extends TestCase
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/stylus'));
+        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/stylus'));
         $this->assertFalse(NodejsPhpFallback::isInstalledPackage('stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         $this->assertTrue(NodejsPhpFallback::isInstalledPackage('pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstallPackages()
     {
-        $this->assertTrue(NodejsPhpFallback::installPackages(array()));
+        $this->assertTrue(NodejsPhpFallback::installPackages([]));
 
-        NodejsPhpFallback::installPackages(array(
+        NodejsPhpFallback::installPackages([
             'stylus'  => '^0.54',
             'pug-cli' => '*',
-        ));
+        ]);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testNpmConfirmInExtra()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
-        ));
-        $composer->getPackage()->setExtra(array(
-            'npm-confirm' => array(
+        ]);
+        $composer->getPackage()->setExtra([
+            'npm-confirm' => [
                 'pug-cli' => 'For pug',
-            ),
-        ));
+            ],
+        ]);
         $io = new CaptureIO();
         $io->setInteractive(true);
         $io->setAnswer(false);
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertFalse(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertFalse(is_dir(static::appDirectory().'/node_modules/pug-cli'));
         static::removeTestDirectories();
     }
 
     public function testInstall()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
-        ));
+        ]);
         $io = new NullIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
 
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/stylus'));
-        $this->assertTrue(is_dir(static::appDirectory() . '/node_modules/pug-cli'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/stylus'));
+        $this->assertTrue(is_dir(static::appDirectory().'/node_modules/pug-cli'));
     }
 
     /**
@@ -274,11 +274,11 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testIsNodeInstalled()
     {
-        chmod(__DIR__ . '/lib/fake-node/node', 0777);
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/fake-node/node');
+        chmod(__DIR__.'/lib/fake-node/node', 0777);
+        $node = new NodejsPhpFallback(__DIR__.'/lib/fake-node/node');
         $this->assertTrue($node->isNodeInstalled());
 
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $this->assertFalse($node->isNodeInstalled());
     }
 
@@ -288,12 +288,12 @@ class NodejsPhpFallbackTest extends TestCase
     public function testNodeExecStylus()
     {
         // prepare
-        $stylusFile = sys_get_temp_dir() . '/test.styl';
+        $stylusFile = sys_get_temp_dir().'/test.styl';
 
         // test
         $node = new NodejsPhpFallback();
         file_put_contents($stylusFile, "a\n  color red");
-        $css = $node->nodeExec(escapeshellarg(static::appDirectory() . '/node_modules/stylus/bin/stylus') . ' --print ' . escapeshellarg($stylusFile));
+        $css = $node->nodeExec(escapeshellarg(static::appDirectory().'/node_modules/stylus/bin/stylus').' --print '.escapeshellarg($stylusFile));
 
         // cleanup
         unlink($stylusFile);
@@ -308,12 +308,12 @@ class NodejsPhpFallbackTest extends TestCase
     public function testModuleExecStylus()
     {
         // prepare
-        $stylusFile = sys_get_temp_dir() . '/test.styl';
+        $stylusFile = sys_get_temp_dir().'/test.styl';
 
         // test
         $node = new NodejsPhpFallback();
         file_put_contents($stylusFile, "a\n  color red");
-        $css = $node->execModuleScript('stylus', 'bin/stylus', '--print ' . escapeshellarg($stylusFile));
+        $css = $node->execModuleScript('stylus', 'bin/stylus', '--print '.escapeshellarg($stylusFile));
 
         // cleanup
         unlink($stylusFile);
@@ -324,12 +324,12 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 3
      */
     public function testModuleExecStylusWithMissingScript()
     {
-        // test
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(3);
+
         $node = new NodejsPhpFallback();
         $node->execModuleScript('stylus', 'bin/i-do-not-exists', '--print foo/bar');
     }
@@ -340,14 +340,14 @@ class NodejsPhpFallbackTest extends TestCase
     public function testNodeExecPug()
     {
         // prepare
-        $pugFile = sys_get_temp_dir() . '/test.pug';
-        $htmlFile = sys_get_temp_dir() . '/test.html';
+        $pugFile = sys_get_temp_dir().'/test.pug';
+        $htmlFile = sys_get_temp_dir().'/test.html';
 
         // test
         $node = new NodejsPhpFallback();
         file_put_contents($pugFile, "h1\n  em Hello");
-        chdir(static::appDirectory() . '/node_modules/pug-cli');
-        $node->nodeExec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'index.js') . ' < ' . escapeshellarg($pugFile) . ' > ' . escapeshellarg($htmlFile));
+        chdir(static::appDirectory().'/node_modules/pug-cli');
+        $node->nodeExec(escapeshellarg('.'.DIRECTORY_SEPARATOR.'index.js').' < '.escapeshellarg($pugFile).' > '.escapeshellarg($htmlFile));
         $html = file_get_contents($htmlFile);
 
         // cleanup
@@ -363,9 +363,9 @@ class NodejsPhpFallbackTest extends TestCase
     public function testExec()
     {
         $node = new NodejsPhpFallback();
-        chdir(static::appDirectory() . '/tests/lib');
+        chdir(static::appDirectory().'/tests/lib');
         chmod('simple', 0777);
-        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
+        $simple = $node->exec(escapeshellarg('.'.DIRECTORY_SEPARATOR.'simple'), function () {
             return 'fail';
         });
 
@@ -377,9 +377,9 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testNodeExecWithoutNode()
     {
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
-        chdir(static::appDirectory() . '/tests/lib');
-        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), function () {
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
+        chdir(static::appDirectory().'/tests/lib');
+        $simple = $node->exec(escapeshellarg('.'.DIRECTORY_SEPARATOR.'simple'), function () {
             return 'fail';
         });
 
@@ -391,8 +391,8 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testModuleExecWithoutNode()
     {
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
-        chdir(static::appDirectory() . '/tests/lib');
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
+        chdir(static::appDirectory().'/tests/lib');
         $simple = $node->execModuleScript('stylus', 'bin/stylus', '--print foo/bar.styl', function () {
             return 'fail';
         });
@@ -402,14 +402,15 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 1
      */
     public function testExecWithoutNodeNorGoodFallback()
     {
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
-        chdir(static::appDirectory() . '/tests/lib');
-        $simple = $node->exec(escapeshellarg('.' . DIRECTORY_SEPARATOR . 'simple'), 42);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(1);
+
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
+        chdir(static::appDirectory().'/tests/lib');
+        $simple = $node->exec(escapeshellarg('.'.DIRECTORY_SEPARATOR.'simple'), 42);
     }
 
     /**
@@ -417,9 +418,9 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testBadConfig()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"no-npm":{"foo":"^1.0"}}}',
-        ));
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -433,12 +434,12 @@ class NodejsPhpFallbackTest extends TestCase
      */
     public function testEmptyConfig()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'x/y' => '{"extra":{"npm":{}}}',
-        ));
-        $composer->getPackage()->setExtra(array(
-            'npm' => array(),
-        ));
+        ]);
+        $composer->getPackage()->setExtra([
+            'npm' => [],
+        ]);
         $io = new CaptureIO();
         $event = new Event('install', $composer, $io);
         NodejsPhpFallback::install($event);
@@ -449,23 +450,25 @@ class NodejsPhpFallbackTest extends TestCase
 
     /**
      * @depends testInstall
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 1
      */
     public function testNonCallableFallback()
     {
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(1);
+
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $node->nodeExec('foo', 'bar');
     }
 
     /**
      * @depends testInstall
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 2
      */
     public function testNoFallback()
     {
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        $this->expectException(ErrorException::class);
+        $this->expectExceptionCode(2);
+
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $node->nodeExec('foo');
     }
 
@@ -475,7 +478,7 @@ class NodejsPhpFallbackTest extends TestCase
     public function testFallback()
     {
         $output = null;
-        $node = new NodejsPhpFallback(__DIR__ . '/lib/empty-directory/node');
+        $node = new NodejsPhpFallback(__DIR__.'/lib/empty-directory/node');
         $return = $node->nodeExec('foo', function ($script) use (&$output) {
             $output = $script;
 
