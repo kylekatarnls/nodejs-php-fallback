@@ -215,7 +215,7 @@ class NodejsPhpFallback
 
         for ($i = static::$maxInstallRetry; $i > 0; $i--) {
             $result = shell_exec(
-                'npm install --loglevel=error '.
+                'npm install --force --loglevel=error '.
                 '--prefix '.escapeshellarg(static::getPrefixPath()).
                 $packages.
                 ' 2>&1'
