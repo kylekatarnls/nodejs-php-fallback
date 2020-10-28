@@ -17,6 +17,11 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $this->io = $io;
     }
 
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement deactivate() method.
+    }
+
     public static function getSubscribedEvents()
     {
         return [
@@ -29,5 +34,10 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
     public function onAutoloadDump(Event $event)
     {
         NodejsPhpFallback::install($event);
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement uninstall() method.
     }
 }
