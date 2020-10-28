@@ -3,9 +3,9 @@
 namespace NodejsPhpFallback;
 
 use Composer\Composer;
+use Composer\EventDispatcher\Event;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
-use Composer\Script\Event;
 use Exception;
 use Throwable;
 
@@ -52,9 +52,10 @@ class NodejsPhpFallback
         $io = $event->getIO();
 
         if (!count($npm)) {
-            $io->write(isset($config['npm'])
-                ? 'No packages found.'
-                : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
+            $io->write(
+                isset($config['npm'])
+                    ? 'No packages found.'
+                    : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
             );
 
             return;
@@ -128,7 +129,8 @@ class NodejsPhpFallback
 
         $count = count($npmConfirm);
         $packageWord = $count > 1 ? 'packages' : 'package';
-        $manual = static::getGlobalInstallChoice($io,
+        $manual = static::getGlobalInstallChoice(
+            $io,
             "$count node $packageWord can be optionally installed/updated.\n".
             "  - Enter Y to install/update them automatically on composer install/update.\n".
             "  - Enter N to ignore them and not asking again.\n".
