@@ -7,8 +7,8 @@ use Composer\EventDispatcher\Event;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
 use ErrorException;
-use Exception;
 use InvalidArgumentException;
+use RuntimeException;
 use Throwable;
 
 class NodejsPhpFallback
@@ -46,8 +46,9 @@ class NodejsPhpFallback
         return __DIR__.'/npm-confirm-reminded-choice.txt';
     }
 
-    protected static function getPackagesList(Event $event, array $npm): array
+    protected static function getPackagesList(Event $event, array $config, array $npm): array
     {
+        /** @var Composer $composer */
         $composer = $event->getComposer();
         $npmConfirm = static::getNpmConfig($composer, 'npm-confirm');
 
@@ -64,9 +65,12 @@ class NodejsPhpFallback
 
     public static function install(Event $event)
     {
+        /** @var Composer $composer */
         $composer = $event->getComposer();
         $npm = static::getNpmConfig($composer);
+        /** @var array $config */
         $config = $composer->getPackage()->getExtra();
+        /** @var IOInterface $io */
         $io = $event->getIO();
 
         if (!count($npm)) {
@@ -79,7 +83,7 @@ class NodejsPhpFallback
             return;
         }
 
-        $npm = static::getPackagesList($event, $npm);
+        $npm = static::getPackagesList($event, $config, $npm);
 
         if (count($npm)) {
             static::installPackages($npm, function ($install) use ($io) {
@@ -122,7 +126,7 @@ class NodejsPhpFallback
 
         try {
             $dependencyConfig = $json->read();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $dependencyConfig = null;
         }
 
@@ -186,8 +190,6 @@ class NodejsPhpFallback
         if (!file_exists($remindedChoice) || !is_readable($remindedChoice)) {
             try {
                 $manual = strtolower($io->ask($message));
-            } catch (Exception $e) {
-                return 'y';
             } catch (Throwable $e) {
                 return 'y';
             }

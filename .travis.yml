@@ -23,7 +23,7 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
   - travis_retry composer self-update
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
