@@ -7,6 +7,7 @@ sudo: required
 matrix:
   include:
     - php: nightly
+      env: COMPOSER_FLAGS='--ignore-platform-reqs'
     - php: 7.4
     - php: 7.3
     - php: 7.3
