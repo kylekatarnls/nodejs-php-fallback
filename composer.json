@@ -11,11 +11,12 @@
     ],
     "require": {
         "php": ">=7.3",
-        "composer-plugin-api": "^1.0"
+        "composer-plugin-api": "^1.0 || ^2.0"
     },
     "require-dev": {
-        "composer/composer": "^1.2",
-        "phpunit/phpunit": "^8.5"
+        "composer/composer": "^2.0",
+        "phpunit/phpunit": "^8.5",
+        "phpmd/phpmd": "^2.9"
     },
     "autoload": {
         "psr-4": {

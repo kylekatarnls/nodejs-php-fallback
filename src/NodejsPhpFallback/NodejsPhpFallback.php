@@ -3,10 +3,12 @@
 namespace NodejsPhpFallback;
 
 use Composer\Composer;
+use Composer\EventDispatcher\Event;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
-use Composer\Script\Event;
-use Exception;
+use ErrorException;
+use InvalidArgumentException;
+use RuntimeException;
 use Throwable;
 
 class NodejsPhpFallback
@@ -44,29 +46,44 @@ class NodejsPhpFallback
         return __DIR__.'/npm-confirm-reminded-choice.txt';
     }
 
+    protected static function getPackagesList(Event $event, array $config, array $npm): array
+    {
+        /** @var Composer $composer */
+        $composer = $event->getComposer();
+        $npmConfirm = static::getNpmConfig($composer, 'npm-confirm');
+
+        if (isset($config['npm-confirm'])) {
+            $npmConfirm = array_merge($npmConfirm, (array) $config['npm-confirm']);
+        }
+
+        if (count($npmConfirm)) {
+            $npm = static::askForInstall($event, $npmConfirm, $npm);
+        }
+
+        return $npm;
+    }
+
     public static function install(Event $event)
     {
+        /** @var Composer $composer */
         $composer = $event->getComposer();
         $npm = static::getNpmConfig($composer);
+        /** @var array $config */
         $config = $composer->getPackage()->getExtra();
+        /** @var IOInterface $io */
         $io = $event->getIO();
 
         if (!count($npm)) {
-            $io->write(isset($config['npm'])
-                ? 'No packages found.'
-                : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
+            $io->write(
+                isset($config['npm'])
+                    ? 'No packages found.'
+                    : "Warning: in order to use NodejsPhpFallback, you should add a 'npm' setting in your composer.json"
             );
 
             return;
         }
 
-        $npmConfirm = static::getNpmConfig($composer, 'npm-confirm');
-        if (isset($config['npm-confirm'])) {
-            $npmConfirm = array_merge($npmConfirm, (array) $config['npm-confirm']);
-        }
-        if (count($npmConfirm)) {
-            $npm = static::askForInstall($event, $npmConfirm, $npm);
-        }
+        $npm = static::getPackagesList($event, $config, $npm);
 
         if (count($npm)) {
             static::installPackages($npm, function ($install) use ($io) {
@@ -109,7 +126,7 @@ class NodejsPhpFallback
 
         try {
             $dependencyConfig = $json->read();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $dependencyConfig = null;
         }
 
@@ -128,7 +145,8 @@ class NodejsPhpFallback
 
         $count = count($npmConfirm);
         $packageWord = $count > 1 ? 'packages' : 'package';
-        $manual = static::getGlobalInstallChoice($io,
+        $manual = static::getGlobalInstallChoice(
+            $io,
             "$count node $packageWord can be optionally installed/updated.\n".
             "  - Enter Y to install/update them automatically on composer install/update.\n".
             "  - Enter N to ignore them and not asking again.\n".
@@ -172,8 +190,6 @@ class NodejsPhpFallback
         if (!file_exists($remindedChoice) || !is_readable($remindedChoice)) {
             try {
                 $manual = strtolower($io->ask($message));
-            } catch (Exception $e) {
-                return 'y';
             } catch (Throwable $e) {
                 return 'y';
             }
@@ -213,7 +229,7 @@ class NodejsPhpFallback
 
         for ($i = static::$maxInstallRetry; $i > 0; $i--) {
             $result = shell_exec(
-                'npm install --loglevel=error '.
+                'npm install --force --loglevel=error '.
                 '--prefix '.escapeshellarg(static::getPrefixPath()).
                 $packages.
                 ' 2>&1'
@@ -263,11 +279,11 @@ class NodejsPhpFallback
         }
 
         if (is_null($fallback)) {
-            throw new \ErrorException('Please install node.js or provide a PHP fallback.', 2);
+            throw new ErrorException('Please install node.js or provide a PHP fallback.', 2);
         }
 
         if (!is_callable($fallback)) {
-            throw new \InvalidArgumentException('The fallback provided is not callable.', 1);
+            throw new InvalidArgumentException('The fallback provided is not callable.', 1);
         }
 
         return false;
@@ -319,7 +335,7 @@ class NodejsPhpFallback
         $module = static::getNodeModule($module);
         $path = $module.DIRECTORY_SEPARATOR.$script;
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException("The $script was not found in the module path $module.", 3);
+            throw new InvalidArgumentException("The $script was not found in the module path $module.", 3);
         }
 
         return escapeshellarg(realpath($path));

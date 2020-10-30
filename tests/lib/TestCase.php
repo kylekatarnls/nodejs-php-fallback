@@ -85,5 +85,7 @@ class TestCase extends PHPUnitTestCase
             static::removeDirectory(__DIR__.'/../../'.$directory);
         }
         static::removeDirectory(static::getVendorDir());
+        @unlink(__DIR__.'/../../jade.ps1');
+        @unlink(__DIR__.'/../../stylus.ps1');
     }
 }

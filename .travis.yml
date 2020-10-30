@@ -7,26 +7,23 @@ sudo: required
 matrix:
   include:
     - php: nightly
+      env: COMPOSER_FLAGS='--ignore-platform-reqs'
     - php: 7.4
     - php: 7.3
+    - php: 7.3
+      env: COMPOSER_FLAGS='--prefer-lowest'
 
 env:
   global:
     - COMPOSER_FLAGS=''
-    - TRAVIS_NODE_VERSION="7"
     - CC_TEST_REPORTER_ID=06b079e57ae87f3c0d08c6cc73fbdf0a0204efa5325947ab6e8bcb30d7fcbb69
-
-install:
-  - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; fi
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
-  - npm install
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
   - travis_retry composer self-update
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
