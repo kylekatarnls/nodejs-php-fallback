@@ -6,7 +6,7 @@ sudo: required
 
 matrix:
   include:
-    - php: 7.4snapshot
+    - php: 7.4
     - php: 7.3
     - php: 7.2
     - php: 7.1
@@ -18,13 +18,6 @@ matrix:
       dist: precise
     - php: 5.3
       dist: precise
-
-env:
-  - TRAVIS_NODE_VERSION="7"
-
-install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
-  - npm install
 
 before_script:
   - travis_retry composer self-update
