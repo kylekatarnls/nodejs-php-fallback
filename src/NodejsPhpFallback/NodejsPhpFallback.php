@@ -3,9 +3,9 @@
 namespace NodejsPhpFallback;
 
 use Composer\Composer;
+use Composer\EventDispatcher\Event;
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
-use Composer\Script\Event;
 use Exception;
 use Throwable;
 
