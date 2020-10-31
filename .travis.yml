@@ -6,48 +6,30 @@ sudo: required
 
 matrix:
   include:
+    - php: nightly
+      env: COMPOSER_FLAGS='--ignore-platform-reqs'
     - php: 7.4
     - php: 7.3
-    - php: 7.2
-    - php: 7.1
-    - php: 7.0
-    - php: 5.6
-    - php: 5.5
-      dist: precise
-      env: TRAVIS_NODE_VERSION="8"
-    - php: 5.4
-      dist: precise
-      env: TRAVIS_NODE_VERSION="8"
-    - php: 5.3
-      dist: precise
-      env: TRAVIS_NODE_VERSION="8"
+    - php: 7.3
+      env: COMPOSER_FLAGS='--prefer-lowest'
 
-install:
-  - |
-    if [[ $TRAVIS_NODE_VERSION = '8'  ]]; then
-      rm -rf ~/.nvm;
-      git clone https://github.com/creationix/nvm.git ~/.nvm;
-      cd ~/.nvm;
-      git checkout `git describe --abbrev=0 --tags`;
-      source ~/.nvm/nvm.sh;
-      nvm install $TRAVIS_NODE_VERSION;
-      npm install;
-      cd -;
-    fi
+env:
+  global:
+    - COMPOSER_FLAGS=''
+    - CC_TEST_REPORTER_ID=06b079e57ae87f3c0d08c6cc73fbdf0a0204efa5325947ab6e8bcb30d7fcbb69
 
 before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
   - travis_retry composer self-update
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction --prefer-source --dev
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 
 after_script:
-  - vendor/bin/test-reporter --coverage-report coverage.xml
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-
-addons:
-  code_climate:
-    repo_token: 06b079e57ae87f3c0d08c6cc73fbdf0a0204efa5325947ab6e8bcb30d7fcbb69

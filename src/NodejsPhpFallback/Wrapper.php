@@ -31,7 +31,7 @@ abstract class Wrapper implements WrapperInterface
             return $this->path;
         }
 
-        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $defaultName;
+        $path = sys_get_temp_dir().DIRECTORY_SEPARATOR.$defaultName;
         file_put_contents($path, $this->contents);
 
         return $path;
