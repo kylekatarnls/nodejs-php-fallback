@@ -40,6 +40,8 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction --prefer-source --dev
 
 script:
+  - echo '<?php echo shell_exec("node -v");' > node-v.php
+  - php node-v.php
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 
 after_script:
