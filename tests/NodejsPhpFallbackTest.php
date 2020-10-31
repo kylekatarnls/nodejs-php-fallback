@@ -1,7 +1,9 @@
 <?php
 
 use Composer\IO\NullIO;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
+use NodejsPhpFallback\ComposerPlugin;
 use NodejsPhpFallback\NodejsPhpFallback;
 use NodejsPhpFallbackTest\TestCase;
 
@@ -507,5 +509,19 @@ class NodejsPhpFallbackTest extends TestCase
         putenv('NODEJS_PHP_FALLBACK_ANSWER');
 
         $this->assertSame('y', $answer);
+    }
+
+    public function testPluginInterface()
+    {
+        $composer = $this->emulateComposer(array(
+            'toto/toto' => '{"extra":{"npm":"stylus"}}',
+        ));
+        $io = new CaptureIO();
+        /** @var PluginInterface|ComposerPlugin $plugin */
+        $plugin = new ComposerPlugin();
+
+        $this->assertInstanceOf('Composer\\Plugin\\PluginInterface', $plugin);
+        $this->assertNull($plugin->deactivate($composer, $io));
+        $this->assertNull($plugin->uninstall($composer, $io));
     }
 }
