@@ -248,6 +248,7 @@ class NodejsPhpFallbackTest extends TestCase
             ],
         ]);
         $io = new CaptureIO();
+        $io->answerOnAsk();
         $io->setInteractive(true);
         $io->setAnswer(false);
         $event = new Event('install', $composer, $io);
@@ -255,6 +256,28 @@ class NodejsPhpFallbackTest extends TestCase
 
         $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
         $this->assertDirectoryNotExists(static::appDirectory().'/node_modules/pug-cli');
+        static::removeTestDirectories();
+    }
+
+    public function testNpmConfirmIfException()
+    {
+        $composer = $this->emulateComposer([
+            'x/y' => '{"extra":{"npm":{"stylus":"^0.54","pug-cli":"*"}}}',
+        ]);
+        $composer->getPackage()->setExtra([
+            'npm-confirm' => [
+                'pug-cli' => 'For pug',
+            ],
+        ]);
+        $io = new CaptureIO();
+        $io->throwExceptionOnAsk();
+        $io->setInteractive(true);
+        $io->setAnswer(false);
+        $event = new Event('install', $composer, $io);
+        NodejsPhpFallback::install($event);
+
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/stylus');
+        $this->assertDirectoryExists(static::appDirectory().'/node_modules/pug-cli');
         static::removeTestDirectories();
     }
 
@@ -516,9 +539,9 @@ class NodejsPhpFallbackTest extends TestCase
 
     public function testPluginInterface()
     {
-        $composer = $this->emulateComposer(array(
+        $composer = $this->emulateComposer([
             'toto/toto' => '{"extra":{"npm":"stylus"}}',
-        ));
+        ]);
         $io = new CaptureIO();
         /** @var PluginInterface|ComposerPlugin $plugin */
         $plugin = new ComposerPlugin();

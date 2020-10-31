@@ -9,9 +9,14 @@ class CaptureIO extends NullIO
     protected $interactive;
     protected $answer;
     protected $initialAnswer;
+    protected $answerAsException;
 
     public function ask($question, $default = null)
     {
+        if ($this->answerAsException) {
+            throw new Exception('Cannot ask');
+        }
+
         return $this->initialAnswer;
     }
 
@@ -33,6 +38,16 @@ class CaptureIO extends NullIO
     public function setAnswer($answer)
     {
         $this->answer = $answer;
+    }
+
+    public function throwExceptionOnAsk()
+    {
+        $this->answerAsException = true;
+    }
+
+    public function answerOnAsk()
+    {
+        $this->answerAsException = false;
     }
 
     public function setInitialAnswer($answer)
