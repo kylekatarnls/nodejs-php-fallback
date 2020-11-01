@@ -29,7 +29,8 @@ script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 
 after_script:
-  - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT coverage.xml
+  - cp coverage.xml clover.xml
+  - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
