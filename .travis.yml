@@ -26,7 +26,7 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
-  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
+  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=clover.xml
 
 after_script:
   - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT
