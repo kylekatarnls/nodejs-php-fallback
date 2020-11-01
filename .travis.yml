@@ -26,10 +26,10 @@ before_script:
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
-  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=clover.xml
+  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 
 after_script:
-  - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT coverage.xml
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
